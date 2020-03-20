@@ -1,0 +1,11 @@
+hbmqtt
+flask
+flask_cors
+flask-mqtt
+llama-mqtt
+ConfigParser
+pypiwin32
+wmi
+requests
+ping3
+Pyro4
