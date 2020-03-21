@@ -39,7 +39,6 @@ class OPCDABRGManager(threading.Thread):
         result = opcServersList()
         return result
 
-
     def opctags_list(self):
         result = []
         return result
@@ -50,6 +49,11 @@ class OPCDABRGManager(threading.Thread):
             return {"status": "starting"}
         else:
             return {"status": "busying"}
+
+    def on_setConfigForced(self, opcConfig):
+        if self._opcdatunnel.opctunnel_clean():
+            self._opcdatunnel.start_opctunnel(opcConfig)
+        return {"status": "starting"}
 
     def on_getConfig(self):
         return self._opcdatunnel.get_opcConfig()
@@ -87,18 +91,11 @@ class OPCDABRGManager(threading.Thread):
 
     def start(self):
         self._opcdaclient = OpenOPC.client()
-        self._opcdatunnel = OPCDATunnel(self)
+        self._opcdatunnel = OPCDATunnel(self, self._mqtt_stream_pub)
         self._opcdatunnel.start()
         threading.Thread.start(self)
 
     def run(self):
-        # try:
-        #     self._opcdaclient.connect('Matrikon.OPC.Simulation11.1')
-        # except Exception as ex:
-        #     logging.warning('connect OPCDA Server err!err!err!')
-        #     logging.exception(ex)
-        #     # print(str(ex))
-        #     self._mqtt_stream_pub.opcdabrg_log_pub('x1x1', str(ex))
         while not self._thread_stop:
             time.sleep(1)
             # if self._opcdaclient.isconnected:
