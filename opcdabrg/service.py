@@ -131,7 +131,7 @@ class OPCDABRG_Service(BaseService):
     @whitelist.__func__
     def api_tunnelStatus(self, id, params):
         # print("params:", params)
-        ret = self._manager.opctunnel_isrunning()
+        ret = self._manager.opctunnel_status()
         if ret:
             return self.success("api", id, ret)
         else:

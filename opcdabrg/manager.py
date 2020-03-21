@@ -31,7 +31,6 @@ class OPCDABRGManager(threading.Thread):
         threading.Thread.__init__(self)
         self._thread_stop = False
         self._mqtt_stream_pub = stream_pub
-        self._opcdaclient = None
         self._opcdatunnel = None
 
     @property
@@ -47,13 +46,16 @@ class OPCDABRGManager(threading.Thread):
         if not self._opcdatunnel.mqtt_clientid:
             self._opcdatunnel.start_opctunnel(opcConfig)
             return {"status": "starting"}
+        elif self._opcdatunnel.mqtt_clientid == opcConfig.get('clientid'):
+            self._opcdatunnel.start_opctunnel(opcConfig)
+            return {"status": "updating"}
         else:
             return {"status": "busying"}
 
     def on_setConfigForced(self, opcConfig):
         if self._opcdatunnel.opctunnel_clean():
             self._opcdatunnel.start_opctunnel(opcConfig)
-        return {"status": "starting"}
+        return {"status": "reinitialize"}
 
     def on_getConfig(self):
         return self._opcdatunnel.get_opcConfig()
@@ -79,18 +81,13 @@ class OPCDABRGManager(threading.Thread):
     def on_tunnelClean(self):
         return self._opcdatunnel.opctunnel_clean()
 
-    def opctunnel_isrunning(self):
+    def opctunnel_status(self):
         return self._opcdatunnel.opctunnel_isrunning()
-
-    def on_opcRead(self, client, items):
-        datas = opcReadItem(client, items)
-        return {"datas": datas}
 
     def on_event(self, event, ul_value):
         return True
 
     def start(self):
-        self._opcdaclient = OpenOPC.client()
         self._opcdatunnel = OPCDATunnel(self, self._mqtt_stream_pub)
         self._opcdatunnel.start()
         threading.Thread.start(self)
@@ -98,19 +95,6 @@ class OPCDABRGManager(threading.Thread):
     def run(self):
         while not self._thread_stop:
             time.sleep(1)
-            # if self._opcdaclient.isconnected:
-            #     try:
-            #         datas = self.on_opcRead(self._opcdaclient, ['Random.Int1', 'Random.Int2', 'Random.Real4'])
-            #         self._mqtt_stream_pub.opcdabrg_datas('x1x1', json.dumps(datas))
-            #     except Exception as ex:
-            #         logging.warning('readItem err!err!err!')
-            #         logging.exception(ex)
-            #         self._mqtt_stream_pub.opcdabrg_log_pub('x1x1', str(ex))
-            #         self._opcdaclient.close()
-            # else:
-            #     print("opcda link status:: ", self._opcdaclient.isconnected)
-            #     self._mqtt_stream_pub.opcdabrg_log_pub('x1x1', "opcda link error! ")
-            #     self._opcdaclient.connect('Matrikon.OPC.Simulation.1')
         logging.warning("Close OPCDABRG!")
 
     def stop(self):
