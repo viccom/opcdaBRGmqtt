@@ -74,6 +74,7 @@ class OPCDATunnel(threading.Thread):
 			csvdatas = load_csv('userdata/opcconfig.csv')
 			if csvdatas:
 				self.start_opctunnel(csvdatas)
+				logging.info('start opctunnel with opcconfig.csv')
 		self._opcdaclient = OpenOPC.client()
 		if self._opcConfig:
 			try:

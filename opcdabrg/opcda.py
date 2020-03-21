@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
+import logging
 import OpenOPCDA.OpenOPC as OpenOPC
 import csv
 import random
@@ -14,7 +15,7 @@ def load_csv(path):
 		reader = csv.reader(csvFile)
 		for i, item in enumerate(reader):
 			if i == 0 and item[0].lower() != "opcname":
-				print("CSV file's line 1 format is not correct!")
+				logging.warning("CSV file's line 1 format is not correct!")
 				return None
 			elif i == 1:
 				opcconfig['opcname'] = item[0]

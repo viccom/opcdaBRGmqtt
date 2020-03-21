@@ -22,7 +22,7 @@ class OPCDABRG_Service(BaseService):
 
     @whitelist.__func__
     def api_ping(self, id, params):
-        print("id:", id, "params:", params)
+        # print("id:", id, "params:", params)
         ret = 'pong'
         if ret:
             return self.success("api", id, ret)

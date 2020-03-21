@@ -88,7 +88,7 @@ class OPCDABRGManager(threading.Thread):
         return True
 
     def start(self):
-        self._opcdatunnel = OPCDATunnel(self, self._mqtt_stream_pub)
+        self._opcdatunnel = OPCDATunnel(self._mqtt_stream_pub)
         self._opcdatunnel.start()
         threading.Thread.start(self)
 
