@@ -9,6 +9,7 @@ from helper import _dict
 from configparser import ConfigParser
 from logging.handlers import TimedRotatingFileHandler
 from logging.handlers import RotatingFileHandler
+import webbrowser
 
 serivces = [
     'opcdabrg'
@@ -69,5 +70,6 @@ if __name__ == '__main__':
         time.sleep(1)
 
     logging.info("Staring Admin!!")
+    # webbrowser.open("http://localhost:3080")
     start_admin(blueprints, context)
     logging.info("CLOSING!!")

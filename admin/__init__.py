@@ -1,4 +1,4 @@
-from flask import Flask, current_app
+from flask import Flask, current_app,  g, session, redirect, url_for, escape, request, render_template, make_response
 from flask_cors import *
 
 
@@ -12,11 +12,7 @@ def start_admin(blueprints=[], services={}):
 
     @app.route("/")
     def index():
-        # resp = make_response(render_template(...))
-        # resp.set_cookie('username', 'the username')
-        # return resp
-        # service = current_app.services.get('vspc_service')
-        return "ThingsRoot Service bundle!!"
+        return render_template("index.html")
 
     CORS(app, supports_credentials=True)
     app.run(host="127.0.0.1", port=3080)
