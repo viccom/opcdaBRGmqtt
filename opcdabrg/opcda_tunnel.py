@@ -36,7 +36,7 @@ class OPCDATunnel(threading.Thread):
 			logging.exception(ex)
 		if opcClient.isconnected:
 			try:
-				datas = opcClient.read(self._opcConfig.get('tags'), sync=True)
+				datas = opcClient.read(self._opcConfig.get('opcitems'), sync=True)
 				opcClient.close()
 				return datas
 			except Exception as ex:
@@ -46,7 +46,7 @@ class OPCDATunnel(threading.Thread):
 		else:
 			return None
 
-	def set_opcDatas(self):
+	def set_opcDatas(self, tags_values):
 		return True
 
 	def opctunnel_pause(self):
@@ -90,7 +90,9 @@ class OPCDATunnel(threading.Thread):
 			elif self._opcdaclient.isconnected:
 				self._count = 0
 				try:
-					datas = self._opcdaclient.read(self._opcConfig.get('tags'), sync=True)
+					# print('opcitems::', self._opcConfig.get('opcitems'))
+					datas = self._opcdaclient.read(self._opcConfig.get('opcitems'), sync=True)
+					# print('datas::', datas)
 					self._mqttpub.opcdabrg_datas(self.mqtt_clientid, json.dumps(datas))
 				except Exception as ex:
 					logging.warning("read item's data err!err!err!")

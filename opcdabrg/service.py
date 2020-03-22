@@ -41,7 +41,9 @@ class OPCDABRG_Service(BaseService):
     @whitelist.__func__
     def api_opctags_list(self, id, params):
         # print("params:", params)
-        ret = self._manager.opctags_list
+        opcserver = params.get('opcserver')
+        node = params.get('node')
+        ret = self._manager.opctags_list(opcserver)
         if ret:
             return self.success("api", id, ret)
         else:
@@ -92,13 +94,12 @@ class OPCDABRG_Service(BaseService):
     @whitelist.__func__
     def api_deviceWrite(self, id, params):
         # print("params:", params)
-        tags = params.get('tags')
-        values = params.get('values')
-        ret = self._manager.on_deviceWrite(tags, values)
+        tags_values = params.get('tags_values')
+        ret = self._manager.on_deviceWrite(tags_values)
         if ret:
             return self.success("api", id, ret)
         else:
-            return self.failure("api", id, "no")
+            return self.failure("api", id, "unknown")
 
     @whitelist.__func__
     def api_tunnelPause(self, id, params):
@@ -107,7 +108,7 @@ class OPCDABRG_Service(BaseService):
         if ret:
             return self.success("api", id, ret)
         else:
-            return self.failure("api", id, "no")
+            return self.failure("api", id, "unknown")
 
     @whitelist.__func__
     def api_tunnelResume(self, id, params):
@@ -116,7 +117,7 @@ class OPCDABRG_Service(BaseService):
         if ret:
             return self.success("api", id, ret)
         else:
-            return self.failure("api", id, "no")
+            return self.failure("api", id, "unknown")
 
     @whitelist.__func__
     def api_tunnelClean(self, id, params):
@@ -126,7 +127,7 @@ class OPCDABRG_Service(BaseService):
         if ret:
             return self.success("api", id, ret)
         else:
-            return self.failure("api", id, "no")
+            return self.failure("api", id, "unknown")
 
     @whitelist.__func__
     def api_tunnelStatus(self, id, params):
@@ -135,4 +136,4 @@ class OPCDABRG_Service(BaseService):
         if ret:
             return self.success("api", id, ret)
         else:
-            return self.failure("api", id, "no")
+            return self.failure("api", id, "unknown")

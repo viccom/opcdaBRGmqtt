@@ -7,7 +7,6 @@ from hbmqtt_broker import MQTTBroker
 from admin import start_admin
 from helper import _dict
 from configparser import ConfigParser
-import idna
 from logging.handlers import TimedRotatingFileHandler
 from logging.handlers import RotatingFileHandler
 
@@ -22,8 +21,8 @@ context = _dict({})
 if __name__ == '__main__':
     formatter = "[%(asctime)s] :: %(levelname)s :: %(name)s :: %(message)s"
     if sys.argv[0] != os.path.split(os.path.realpath(__file__))[1]:
-        os.chdir(os.path.split(sys.argv[0])[0])
-
+        if os.path.split(sys.argv[0])[0]:
+            os.chdir(os.path.split(sys.argv[0])[0])
     log_level = 'INFO'
     log_filenum = 9
     log_maxsize = 4

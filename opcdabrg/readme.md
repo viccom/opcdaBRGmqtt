@@ -1,4 +1,13 @@
-v1/opcdabrg/api/
+pub:
+v1/opcdabrg/api/setConfig
+v1/opcdabrg/api/getConfig
+v1/opcdabrg/api/opcservers_list
+v1/opcdabrg/api/opctags_list
+v1/opcdabrg/api/deviceRead
+v1/opcdabrg/api/tunnelStatus
+sub:
+v1/opcdabrg/api/RESULT
 
-v1/opcdabrg/OPCDABRG_DATAS/x1x1
-v1/opcdabrg/OPCDABRG_LOGS/x1x1
+sub:
+v1/opcdabrg/OPCDABRG_DATAS/#
+v1/opcdabrg/OPCDABRG_LOGS/#

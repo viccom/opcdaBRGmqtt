@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import logging
-import OpenOPCDA.OpenOPC as OpenOPC
+import opcdabrg.OpenOPC as OpenOPC
 import csv
 import random
 
@@ -10,6 +10,7 @@ import random
 def load_csv(path):
 	opcconfig = {}
 	tags = []
+	items = []
 	with open(path, 'r') as csvFile:
 		# 读取csv文件,返回的是迭代类型
 		reader = csv.reader(csvFile)
@@ -23,8 +24,10 @@ def load_csv(path):
 				opcconfig['clientid'] = item[2]
 			elif i > 2:
 				tags.append(item)
+				items.append(item[2])
 	csvFile.close()
 	opcconfig['opctags'] = tags
+	opcconfig['opcitems'] = items
 	return opcconfig
 
 
@@ -57,10 +60,10 @@ def opcInfo(opcdaserv):
 	return opcinfo
 
 
-def opcTagsList(opcdaserv, node=None):
+def opcTagsList(opcdaserv):
 	opc = OpenOPC.client()
 	opc.connect(opcdaserv)
-	TagsList = opc.list(node)
+	TagsList = opc.list('*', flat=True)
 	opc.close()
 	return TagsList
 
@@ -73,5 +76,5 @@ def opcReadItem(client, items):
 def opcWriteItem(opcdaserv, item, value):
 	opc = OpenOPC.client()
 	opc.connect(opcdaserv)
-	# print(opc.write((item, value)))
+	print(opc.write((item, value)))
 	opc.close()

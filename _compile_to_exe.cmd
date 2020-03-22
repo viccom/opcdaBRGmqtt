@@ -3,9 +3,9 @@ rmdir /S /Q __pycache__
 rmdir /S /Q build
 rmdir /S /Q dist
 
-D:\Python36-32\Scripts\pyinstaller.exe -F --hiddenimport vnet.app --hiddenimport vspc.app --hiddenimport vspax.app --hiddenimport common.app --hiddenimport idna --uac-admin main.py
+G:\mycode\opcdaBRGmqtt\venv\Scripts\pyinstaller.exe -F --hiddenimport opcdabrg.app --uac-admin main.py
 
-move dist\main.exe freeioe_Rprogramming.exe
+move dist\main.exe opcdaBRGmqtt.exe
 
 rmdir /S /Q __pycache__
 rmdir /S /Q build

@@ -38,8 +38,8 @@ class OPCDABRGManager(threading.Thread):
         result = opcServersList()
         return result
 
-    def opctags_list(self):
-        result = []
+    def opctags_list(self, opcserver):
+        result = opcTagsList(opcserver)
         return result
 
     def on_setConfig(self, opcConfig):
@@ -66,9 +66,9 @@ class OPCDABRGManager(threading.Thread):
         else:
             return None
 
-    def on_deviceWrite(self, tags, values):
+    def on_deviceWrite(self, tags_values):
         if not self._opcdatunnel.opctunnel_isrunning():
-            return self._opcdatunnel.set_opcDatas(tags, values)
+            return self._opcdatunnel.set_opcDatas(tags_values)
         else:
             return None
 
