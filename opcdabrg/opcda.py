@@ -24,22 +24,23 @@ def load_csv(path):
 				opcconfig['clientid'] = item[2]
 			elif i > 2:
 				tags.append(item)
-				items.append(item[2])
+				items.append(item[2].strip())
 	csvFile.close()
 	opcconfig['opctags'] = tags
 	opcconfig['opcitems'] = items
 	return opcconfig
 
 
-def save_csv(path, opcconfig):
+def save_csv(path, configdatas):
 	headers = ['OPCNAME', 'OPCHOST', 'CLIENTID']
 	csv_datas = []
 	csv_datas.append(headers)
-	csv_datas.append([opcconfig['opcname'], opcconfig['opchost'], opcconfig['clientid']])
+	csv_datas.append([configdatas['opcname'], configdatas['opchost'], configdatas['clientid']])
 	tagheaders = ['tagname', 'datatype', 'opcitem']
 	csv_datas.append(tagheaders)
-	csv_datas.append(opcconfig['opctags'])
-	with open('_Modbus点表.csv', 'w', newline='') as f:
+	for v in configdatas['opctags']:
+		csv_datas.append(v)
+	with open(path, 'w', newline='') as f:
 		writer = csv.writer(f)
 		writer.writerows(csv_datas)
 	return True

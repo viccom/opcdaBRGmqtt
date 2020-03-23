@@ -51,10 +51,10 @@ class OPCDABRG_Service(BaseService):
 
     @whitelist.__func__
     def api_setConfig(self, id, params):
-        # print("params:", params)
+        print("params:", params)
         opcConfig = params.get('config')
         ret = None
-        if opcConfig.get('opcname') and opcConfig.get('clientid') and opcConfig.get('tags'):
+        if opcConfig.get('opcname') and opcConfig.get('clientid') and opcConfig.get('opctags'):
             ret = self._manager.on_setConfig(opcConfig)
         if ret:
             return self.success("api", id, ret)
@@ -66,7 +66,7 @@ class OPCDABRG_Service(BaseService):
         # print("params:", params)
         opcConfig = params.get('config')
         ret = None
-        if opcConfig.get('opcname') and opcConfig.get('clientid') and opcConfig.get('tags'):
+        if opcConfig.get('opcname') and opcConfig.get('clientid') and opcConfig.get('opctags'):
             ret = self._manager.on_setConfigForced(opcConfig)
         if ret:
             return self.success("api", id, ret)

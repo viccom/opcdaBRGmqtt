@@ -23,9 +23,18 @@ class OPCDATunnel(threading.Thread):
 		return self._opcConfig
 
 	def start_opctunnel(self, opcConfig):
+		if self._opcdaclient.isconnected:
+			print("1. _opcdaclient is linked:: ", self._opcdaclient.isconnected)
+			self._opcdaclient.close()
+			print("2. close _opcdaclient:: ", self._opcdaclient.isconnected)
+		else:
+			print("3. _opcdaclient is closed:: ")
 		self._opcConfig = opcConfig
 		self.mqtt_clientid = opcConfig.get('clientid')
+		save_csv('userdata/opcconfig.csv', self._opcConfig)
 		self._opctunnel_isrunning = True
+		self._count = 0
+		return True
 
 	def get_opcDatas(self):
 		opcClient = OpenOPC.client()
@@ -58,16 +67,19 @@ class OPCDATunnel(threading.Thread):
 		return True
 
 	def opctunnel_clean(self):
-		if self._opcdaclient.isconnected:
+		if self._opcdaclient and self._opcdaclient.isconnected:
+			logging.info("opcdaclient closing!")
 			self._opcdaclient.close()
 		self._opctunnel_isrunning = None
 		self._opcConfig = None
+		logging.info("opctunnel has cleaned!")
 		return True
 
 	def opctunnel_isrunning(self):
 		return self._opctunnel_isrunning
 
 	def run(self):
+		self._opcdaclient = OpenOPC.client()
 		if not os.path.exists("userdata"):
 			os.mkdir("userdata")
 		if os.path.exists("userdata/opcconfig.csv"):
@@ -75,14 +87,18 @@ class OPCDATunnel(threading.Thread):
 			if csvdatas:
 				self.start_opctunnel(csvdatas)
 				logging.info('start opctunnel with opcconfig.csv')
-		self._opcdaclient = OpenOPC.client()
 		if self._opcConfig:
 			try:
 				self._opcdaclient.connect(self._opcConfig.get('opcname'), self._opcConfig.get('opchost') or 'localhost')
+				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid,
+				                               'connect ' + self._opcConfig.get('opcname') + ' successful')
 			except Exception as ex:
 				logging.warning('connect OPCDA Server err!err!err!')
 				logging.exception(ex)
 				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, str(ex))
+			finally:
+				pass
+				# print(self._opcConfig.get('opcname'), self._opcConfig.get('opcitems'))
 		while not self._thread_stop:
 			if not self._opctunnel_isrunning:
 				time.sleep(1)
@@ -99,12 +115,15 @@ class OPCDATunnel(threading.Thread):
 					logging.exception(ex)
 					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, str(ex))
 					self._opcdaclient.close()
-					self._opcdaclient = OpenOPC.client()
 				finally:
 					time.sleep(1)
 			else:
+				time.sleep(0.1)
+				self._opcdaclient = OpenOPC.client()
 				try:
+					print(self._count, self._opcConfig.get('opcname'), self._opcConfig.get('opchost'))
 					self._opcdaclient.connect(self._opcConfig.get('opcname'), self._opcConfig.get('opchost') or 'localhost')
+					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, 'connect ' + self._opcConfig.get('opcname') + ' successful')
 				except Exception as ex:
 					logging.warning('connect OPCDA Server err!err!err!')
 					logging.exception(ex)

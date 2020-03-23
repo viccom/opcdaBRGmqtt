@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+opcdaBRGmqtt.exe
 log
 .cmd
 # C extensions
@@ -106,3 +107,9 @@ venv.bak/
 .mypy_cache/
 license.py
 .idea
+OpenOPCDA/opcconfig1.csv
+OpenOPCDA/opcconfig2.csv
+OpenOPCDA/pub_opcconfig.py
+OpenOPCDA/sub_opcdatas.py
+OpenOPCDA/sub_opclogs.py
+userdata/
