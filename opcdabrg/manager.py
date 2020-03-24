@@ -33,12 +33,10 @@ class OPCDABRGManager(threading.Thread):
         self._mqtt_stream_pub = stream_pub
         self._opcdatunnel = None
 
-    @property
-    def opcservers_list(self):
-        result = opcServersList()
-        return result
+    def list_opcservers(self, opchost=None):
+        return list_OPCServers(opchost)
 
-    def opctags_list(self, opcserver):
+    def list_opctags(self, opcserver):
         result = opcTagsList(opcserver)
         return result
 

@@ -46,12 +46,11 @@ def save_csv(path, configdatas):
 	return True
 
 
-def opcServersList():
+def list_OPCServers(opchost):
 	opc = OpenOPC.client()
-	ServersList = opc.servers()
+	_ServersList = opc.servers(opc_host=opchost)
 	opc.close()
-	return ServersList
-
+	return _ServersList
 
 def opcInfo(opcdaserv):
 	opc = OpenOPC.client()
@@ -64,7 +63,9 @@ def opcInfo(opcdaserv):
 def opcTagsList(opcdaserv):
 	opc = OpenOPC.client()
 	opc.connect(opcdaserv)
-	TagsList = opc.list('*', flat=True)
+	TagsList = None
+	if opc.isconnected:
+		TagsList = opc.list('*', flat=True)
 	opc.close()
 	return TagsList
 

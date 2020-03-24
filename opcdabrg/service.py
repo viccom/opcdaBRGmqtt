@@ -32,7 +32,8 @@ class OPCDABRG_Service(BaseService):
     @whitelist.__func__
     def api_opcservers_list(self, id, params):
         # print("params:", params)
-        ret = self._manager.opcservers_list()
+        opchost = params.get('opchost') or 'localhost'
+        ret = self._manager.list_opcservers(opchost)
         if ret:
             return self.success("api", id, ret)
         else:
@@ -40,10 +41,9 @@ class OPCDABRG_Service(BaseService):
 
     @whitelist.__func__
     def api_opctags_list(self, id, params):
-        # print("params:", params)
+        print("params:", params)
         opcserver = params.get('opcserver')
-        node = params.get('node')
-        ret = self._manager.opctags_list(opcserver)
+        ret = self._manager.list_opctags(opcserver)
         if ret:
             return self.success("api", id, ret)
         else:

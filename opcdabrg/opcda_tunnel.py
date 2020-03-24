@@ -90,12 +90,11 @@ class OPCDATunnel(threading.Thread):
 		if self._opcConfig:
 			try:
 				self._opcdaclient.connect(self._opcConfig.get('opcname'), self._opcConfig.get('opchost') or 'localhost')
-				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid,
-				                               'connect ' + self._opcConfig.get('opcname') + ' successful')
+				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', 'connect ' + self._opcConfig.get('opcname') + ' successful']))
 			except Exception as ex:
 				logging.warning('connect OPCDA Server err!err!err!')
 				logging.exception(ex)
-				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, str(ex))
+				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', str(ex)]))
 			finally:
 				pass
 				# print(self._opcConfig.get('opcname'), self._opcConfig.get('opcitems'))
@@ -113,7 +112,7 @@ class OPCDATunnel(threading.Thread):
 				except Exception as ex:
 					logging.warning("read item's data err!err!err!")
 					logging.exception(ex)
-					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, str(ex))
+					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'read', str(ex)]))
 					self._opcdaclient.close()
 				finally:
 					time.sleep(1)
@@ -123,11 +122,11 @@ class OPCDATunnel(threading.Thread):
 				try:
 					print(self._count, self._opcConfig.get('opcname'), self._opcConfig.get('opchost'))
 					self._opcdaclient.connect(self._opcConfig.get('opcname'), self._opcConfig.get('opchost') or 'localhost')
-					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, 'connect ' + self._opcConfig.get('opcname') + ' successful')
+					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', 'connect ' + self._opcConfig.get('opcname') + ' successful']) )
 				except Exception as ex:
 					logging.warning('connect OPCDA Server err!err!err!')
 					logging.exception(ex)
-					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, str(ex))
+					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', str(ex)]))
 					time.sleep(1 + 5 * self._count)
 					self._count = self._count + 1
 
