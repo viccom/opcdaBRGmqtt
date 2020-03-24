@@ -4,6 +4,8 @@ from flask_cors import *
 
 def start_admin(blueprints=[], services={}):
     app = Flask(__name__)
+    app.jinja_env.auto_reload = True
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
     with app.app_context():
         current_app.services = services
 
@@ -15,4 +17,4 @@ def start_admin(blueprints=[], services={}):
         return render_template("index.html")
 
     CORS(app, supports_credentials=True)
-    app.run(host="127.0.0.1", port=3080)
+    app.run(host="127.0.0.1", port=3080, debug=False)

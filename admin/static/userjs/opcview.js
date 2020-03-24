@@ -1,5 +1,4 @@
-var log_subscribed = false;
-
+var opcdata = [];
 
 setTimeout(function () {
     connect();
@@ -13,6 +12,9 @@ var mqtt_status_ret= setInterval(function(){
         $(".MQTTStatus").text("已连接");
     }else{
         $(".MQTTStatus").text("重连中");
+        $("select.opcserverslist").empty();
+        $("select.opcserverslist").append("<option value='点击上方查询按钮'></option>");
+        $("#NewOPCItems").val('');
         connect();
     }
 
@@ -23,8 +25,8 @@ var mqtt_status_ret= setInterval(function(){
  */
 var opcdaBRG_status_ret= setInterval(function(){
     if(mqttc_connected){
-        console.log('查询opcdaBRG状态');
-        message = new Paho.Message(JSON.stringify({"id":'getConfig/' + Date.parse(new Date()).toString()}));
+        // console.log('查询opcdaBRG状态');
+        var message = new Paho.Message(JSON.stringify({"id":'getConfig/' + Date.parse(new Date()).toString()}));
         message.destinationName = 'v1/opcdabrg/api/getConfig';
         message.qos = 0;
         mqtt_client.send(message);
@@ -35,6 +37,111 @@ var opcdaBRG_status_ret= setInterval(function(){
     }
 
 },2000);
+
+
+$('span.reset').click(function(){
+    $("#ClientID").val('');
+    $("#OPCHost").val('');
+    $("#OPCServer").val('');
+    $("#OPCItems").val('');
+
+});
+
+$('span.opc-query').click(function(){
+    var message = new Paho.Message(JSON.stringify({"id":'opcservers_list/' + Date.parse(new Date()).toString()}));
+    message.destinationName = 'v1/opcdabrg/api/opcservers_list';
+    message.qos = 0;
+    mqtt_client.send(message);
+    // console.log(2)
+});
+
+$('span.select-to-left').click(function(){
+    if($("select.opcserverslist option:selected").val()=="点击上方查询按钮"){
+        $("span.api-feed").text("点击上方查询按钮获取OPCServer列表");
+    }else{
+        $("select.opcserverslist").trigger('change');
+        //  $("select.opcserverslist").attr("size",2);
+    }
+
+    // var opcservername = $("select.opcserverslist").val();
+    // $("#OPCServer").val(opcservername);
+});
+
+$("select.opcserverslist").change(function() {
+    // var options=$("select.opcserverslist option:selected");
+    // console.log(options.val());
+    if($("select.opcserverslist option:selected").val()!="点击上方查询按钮"){
+        var opcservername = $(this).val();
+        var message = new Paho.Message(JSON.stringify({"id":'opctags_list/' + Date.parse(new Date()).toString(), "opcserver":opcservername}));
+        message.destinationName = 'v1/opcdabrg/api/opctags_list';
+        message.qos = 0;
+        mqtt_client.send(message);
+    }else{
+        $("span.api-feed").text("点击上方查询按钮获取OPCServer列表");
+    }
+
+});
+
+$('button.postconfig').click(function(){
+    console.log("normal psotconfig");
+    var opc_config = new Object();
+    opc_config.clientid = $("#newClientID").val();
+    opc_config.opcname = $("select.opcserverslist option:selected").val();
+    opc_config.opchost = $("#OPCServerHost").val();
+    var opcitems = $("#NewOPCItems").val().trim();
+    if(opcitems.length>0){
+        opcitems = opcitems.split(/[\n]/)
+        opc_config.opcitems = opcitems;
+    }
+    // console.log(opc_config);
+    var opctags = [];
+    $.each(opcitems, function (i, v) {
+        // console.log(v);
+        opctags.push([v.replace(/\./, "_") ,'float' ,v]);
+    });
+    opc_config.opctags = opctags;
+
+    if(opc_config.opcname!=="点击上方查询按钮" && opcitems.length>0){
+        // console.log(opc_config);
+        var message = new Paho.Message(JSON.stringify({"id":'setConfig/' + Date.parse(new Date()).toString(),"config":opc_config}));
+        message.destinationName = 'v1/opcdabrg/api/setConfig';
+        message.qos = 0;
+        mqtt_client.send(message);
+    }else{
+        $("span.api-feed").text("未选择OPCServer或OPC标签为空");
+    }
+
+});
+
+$('button.postconfigForced').click(function(){
+    console.log("force psotconfig");
+    var opc_config = new Object();
+    opc_config.clientid = $("#newClientID").val();
+    opc_config.opcname = $("select.opcserverslist option:selected").val();
+    opc_config.opchost = $("#OPCServerHost").val();
+    var opcitems = $("#NewOPCItems").val().trim();
+    if(opcitems.length>0){
+        opcitems = opcitems.split(/[\n]/)
+        opc_config.opcitems = opcitems;
+    }
+    // console.log(opc_config);
+    var opctags = [];
+    $.each(opcitems, function (i, v) {
+        // console.log(v);
+        opctags.push([v.replace(/\./, "_") ,'float' ,v]);
+    });
+    opc_config.opctags = opctags;
+
+    if(opc_config.opcname!=="点击上方查询按钮" && opcitems.length>0){
+        console.log(opc_config);
+        var message = new Paho.Message(JSON.stringify({"id":'setConfigForced/' + Date.parse(new Date()).toString(),"config":opc_config}));
+        message.destinationName = 'v1/opcdabrg/api/setConfigForced';
+        message.qos = 0;
+        mqtt_client.send(message);
+    }else{
+        $("span.api-feed").text("未选择OPCServer或OPC标签为空");
+    }
+});
 
 
 $(function () {
@@ -51,7 +158,7 @@ $(function () {
         "scrollCollapse": true,
         "paging":         true,
         "processing": true,
-        "bStateSave": false,
+        "bStateSave": true,
         "order": [[ 0, "asc" ]],
         "language": {
             "sProcessing": "处理中...",
@@ -77,6 +184,7 @@ $(function () {
                 "sSortDescending": ": 以降序排列此列"
             }
         },
+        data: opcdata,
         columnDefs: [
             {
                 //   指定第第1列

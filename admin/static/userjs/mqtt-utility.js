@@ -52,7 +52,13 @@ function logMessage(type, ...content) {
     }
 }
 
-
+function isEmpty(obj){
+    if(typeof obj == "undefined" || obj == null || obj == ""){
+        return true;
+    }else{
+        return false;
+    }
+}
 
 function makeid() {
     var text = "";
@@ -292,26 +298,97 @@ function onMessageArrived(message) {
         var new_log_message = [local_datetime, log_message[1], log_message[2]];
         log_table.row.add(new_log_message).draw();
 
-    }else if(arr_topic[2]==="OPCDABRG_DATAS") {
+    }
+    if(arr_topic[2]==="OPCDABRG_DATAS") {
         // console.log(message.payloadString);
         var data_message = JSON.parse(message.payloadString);
-        data_table.clear().draw();
-        for (i = 0; i < data_message.length; i++) {
-            data_table.row.add(data_message[i]).draw();
-        }
-        // console.log(typeof log_message[1]);
+        // opcdata = data_message;
+        var currentPage = data_table.page();
+        // console.log(currentPage);
+        data_table.clear();
+        data_table.rows.add(data_message).draw(false);
+        data_table.page(currentPage).draw(false);
+
     }
-    else if(arr_topic[3]==="RESULT"){
+    if(arr_topic[3]==="RESULT"){
         // console.log(message.payloadString);
         var apiResult_message = JSON.parse(message.payloadString);
         // console.log(apiResult_message['id']);
 
-        if(apiResult_message['id'].indexOf("getConfig") != -1 ){
-            $(".OPCServerName").text(apiResult_message['data']['opcname']);
-            $(".OPCServerHost").text(apiResult_message['data']['opchost']);
+        if(apiResult_message['id'].indexOf("setConfig") != -1 ){
+            $("span.api-feed").text(apiResult_message.id + ":" + JSON.stringify(apiResult_message.data));
+            console.log(apiResult_message);
         }
+
+        if(apiResult_message['id'].indexOf("getConfig") != -1 ){
+            if(apiResult_message.result){
+                $(".OPCServerName").text(apiResult_message['data']['opcname']);
+                $(".OPCServerHost").text(apiResult_message['data']['opchost']);
+                $("#ClientID").val(apiResult_message['data']['clientid']);
+                $("#OPCServer").val(apiResult_message['data']['opcname']);
+                $("#OPCHost").val(apiResult_message['data']['opchost']);
+                if(isEmpty($("#OPCServerHost").val())){
+                    $("#OPCServerHost").val(apiResult_message['data']['opchost']);
+                }
+                var opcitems = apiResult_message['data']['opcitems'];
+                // console.log(opcitems[0]);
+                $("#OPCItems").val('');
+                var content_str = $("#OPCItems").val();
+                $.each(opcitems, function (i, v) {
+                    // console.log(v);
+                    content_str = content_str + v + "\n";
+                });
+                $("#OPCItems").val(content_str);
+            }
+
+        }
+
+        if(apiResult_message['id'].indexOf("opctags_list") != -1 ){
+            $("span.api-feed").text(apiResult_message.id + ":" + apiResult_message.result);
+            if(apiResult_message.result){
+                var opcitems = apiResult_message.data;
+                // console.log(opcitems);
+                var content_str = '';
+                $("#NewOPCItems").val(content_str);
+                $.each(opcitems, function (i, v) {
+                    // console.log(v);
+                    content_str = content_str + v + "\n";
+                });
+                $("#NewOPCItems").val(content_str);
+            }
+
+        }
+
         if(apiResult_message['id'].indexOf("tunnelStatus") != -1 ){
-            $(".OPCServerStatus").text(apiResult_message['data']);
+            if(apiResult_message.result) {
+                $(".OPCServerStatus").text(apiResult_message['data']);
+            }
+        }
+
+        if(apiResult_message['id'].indexOf("opcservers_list") != -1 ){
+            $("span.api-feed").text(apiResult_message.id + ":" + apiResult_message.result);
+            // console.log(message.destinationName);
+            if(apiResult_message.result){
+                // console.log(apiResult_message['data']);
+                $("select.opcserverslist").empty();
+                var opcservers_data = apiResult_message['data'];
+                if(opcservers_data.length>0){
+                    $.each(opcservers_data, function (i, v) {
+                        // console.log(v);
+                        $("select.opcserverslist").append("<option value='" + v + "'>" + v +"</option>");
+                    });
+                    $("select.opcserverslist").get(0).selectedIndex = 0;
+                    var opcservername = $("select.opcserverslist").val();
+                    var message = new Paho.Message(JSON.stringify({"id":'opctags_list/' + Date.parse(new Date()).toString(), "opcserver":opcservername}));
+                    message.destinationName = 'v1/opcdabrg/api/opctags_list';
+                    message.qos = 0;
+
+                    mqtt_client.send(message);
+                }
+
+            }
+
+
         }
         // $(".MQTTStatus").text(apiResult_message['data']['clientid']);
 
@@ -334,7 +411,7 @@ function connect() {
   var hostname = mqtt_host;
   var port = mqtt_port;
   var clientId = "webclient-"+makeid();
-
+  $("#newClientID").val(clientId);
   var path = "/mqtt";
   var user = '';
   var pass = '';

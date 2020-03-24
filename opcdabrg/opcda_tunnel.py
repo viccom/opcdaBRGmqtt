@@ -5,8 +5,14 @@ import logging
 import time
 import os
 import json
+import decimal
 from opcdabrg.opcda import *
 
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return float(o)
+        super(DecimalEncoder, self).default(o)
 
 class OPCDATunnel(threading.Thread):
 	def __init__(self, mqttpub):
@@ -15,6 +21,7 @@ class OPCDATunnel(threading.Thread):
 		self._opctunnel_isrunning = False
 		self._opcConfig = None
 		self._opcdaclient = None
+		self._timeInterval = 1
 		self._count = 0
 		self.mqtt_clientid = None
 		self._thread_stop = False
@@ -96,6 +103,8 @@ class OPCDATunnel(threading.Thread):
 				logging.exception(ex)
 				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', str(ex)]))
 			finally:
+				if self._opcConfig.get('timeInterval'):
+					self._timeInterval = self._opcConfig.get('timeInterval')
 				pass
 				# print(self._opcConfig.get('opcname'), self._opcConfig.get('opcitems'))
 		while not self._thread_stop:
@@ -107,15 +116,15 @@ class OPCDATunnel(threading.Thread):
 				try:
 					# print('opcitems::', self._opcConfig.get('opcitems'))
 					datas = self._opcdaclient.read(self._opcConfig.get('opcitems'), sync=True)
-					# print('datas::', datas)
-					self._mqttpub.opcdabrg_datas(self.mqtt_clientid, json.dumps(datas))
+					# print('datas::', json.dumps(datas, cls=DecimalEncoder))
+					self._mqttpub.opcdabrg_datas(self.mqtt_clientid, json.dumps(datas, cls=DecimalEncoder))
 				except Exception as ex:
 					logging.warning("read item's data err!err!err!")
 					logging.exception(ex)
 					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'read', str(ex)]))
 					self._opcdaclient.close()
 				finally:
-					time.sleep(1)
+					time.sleep(self._timeInterval)
 			else:
 				time.sleep(0.1)
 				self._opcdaclient = OpenOPC.client()
@@ -129,6 +138,9 @@ class OPCDATunnel(threading.Thread):
 					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', str(ex)]))
 					time.sleep(1 + 5 * self._count)
 					self._count = self._count + 1
+				finally:
+					if self._opcConfig.get('timeInterval'):
+						self._timeInterval = self._opcConfig.get('timeInterval')
 
 	def stop(self):
 		self._thread_stop = True

@@ -41,7 +41,7 @@ class OPCDABRG_Service(BaseService):
 
     @whitelist.__func__
     def api_opctags_list(self, id, params):
-        print("params:", params)
+        # print("params:", params)
         opcserver = params.get('opcserver')
         ret = self._manager.list_opctags(opcserver)
         if ret:
@@ -51,7 +51,7 @@ class OPCDABRG_Service(BaseService):
 
     @whitelist.__func__
     def api_setConfig(self, id, params):
-        print("params:", params)
+        # print("params:", params)
         opcConfig = params.get('config')
         ret = None
         if opcConfig.get('opcname') and opcConfig.get('clientid') and opcConfig.get('opctags'):

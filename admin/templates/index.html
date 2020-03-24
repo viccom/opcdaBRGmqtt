@@ -47,9 +47,9 @@
 </head>
 
 <body>
-<div class="row">
+<div>
 <!--左侧导航-->
-    <div class="col-md-2 bs-1">
+    <div class="col-md-2" style="margin-left: 0px;margin-top: 16px;margin-right: 0px;margin-bottom: 0px;">
       <div class="panel panel-default">
           <div class="panel-heading" style="height: 50px">OPCDA数据桥工具</div>
 
@@ -64,7 +64,7 @@
 <!--左侧导航-->
 
     <!--右侧视图-->
-    <div class="col-md-9" style="margin-left: 0px;margin-top: 16px;margin-right: 0px;margin-bottom: 0px;">
+    <div class="col-md-10" style="margin-left: 0px;margin-top: 16px;margin-right: 0px;margin-bottom: 0px;">
 
         <!--服务状态栏-->
       <div class="col-md-12" style="margin: 0px;padding: 0px">
@@ -99,52 +99,67 @@
                   <div class="panel-body">
                       <!--左侧-->
                       <div class="col-md-6" style="margin: 0px;padding: 0px">
-                          <div class="col-sm-12 navbar-header"><a class="navbar-brand navbar-right">当前配置</a></div>
+                          <div class="col-sm-12 navbar-header"><a class="navbar-brand navbar-right">运行参数</a></div>
 
-                          <form class="form-horizontal" role="form">
+                          <div class="form-horizontal">
                               <div class="form-group">
                                   <label for="ClientID" class="col-sm-4 control-label">ClientID:</label>
                                   <div class="col-sm-8">
                                       <input type="text" class="form-control" id="ClientID"
-                                             placeholder="请输入ClientID">
+                                             placeholder="" disabled>
                                   </div>
                               </div>
 
                               <div class="form-group">
+                                  <label class="col-sm-4 control-label">OPCHost:</label>
+                                  <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="OPCHost" placeholder="" disabled>
+                                  </div>
+                              </div>
+
+
+                              <div class="form-group">
                                   <label class="col-sm-4 control-label">OPCServer:</label>
                                   <div class="col-sm-8">
-                                      <input type="text" class="form-control" id="OPCServer"
-                                             placeholder="请输入OPCServer">
+                                      <div class="input-group">
+                                        <input type="text" class="form-control" id="OPCServer" placeholder="" disabled>
+                                          <span class="input-group-addon btn btn-default reset"><i class="glyphicon glyphicon-refresh"></i> 重置</span>
+                                      </div>
                                   </div>
                               </div>
 
                               <div class="form-group">
                                   <label class="col-sm-4 control-label">OPCItems:</label>
                                   <div class="col-sm-8">
-                                      <textarea  rows="10" class="form-control" placeholder="输入OPCItems"></textarea>
+                                      <textarea  rows="10" class="form-control" id="OPCItems" placeholder="" disabled></textarea>
                                   </div>
                               </div>
 
-                              <div class="form-group">
-                                  <div class="col-sm-offset-4 col-sm-8">
-                                      <button type="submit" class="btn btn-default">提交</button>
-                                  </div>
-                              </div>
-                          </form>
+
+                          </div>
                       </div>
                       <!--左侧-->
 
                       <!--右侧-->
                       <div class="col-md-6" style="margin: 0px;padding: 0px">
-                          <div class="col-sm-12 navbar-header"><a class="navbar-brand navbar-right">查询功能</a></div>
-                          <form class="form-horizontal" role="form">
+                          <div class="col-sm-12 navbar-header"><a class="navbar-brand navbar-right">配置功能</a></div>
+                          <div class="form-horizontal">
+
+                              <div class="form-group">
+                                  <label for="ClientID" class="col-sm-4 control-label">newClientID:</label>
+                                  <div class="col-sm-8">
+                                      <input type="text" class="form-control" id="newClientID"
+                                             placeholder="">
+                                  </div>
+                              </div>
+
                               <div class="form-group">
                                   <label for="OPCServerHost" class="col-sm-4 control-label">OPCServerHost:</label>
                                   <div class="col-sm-8">
                                       <div class="input-group">
                                           <input type="text" class="form-control" id="OPCServerHost"
                                                  placeholder="请输入OPCServerHost">
-                                          <a class="input-group-addon btn btn-default"><i class="glyphicon glyphicon-search"></i> 查询</a>
+                                          <span class="input-group-addon btn btn-default opc-query"><i class="glyphicon glyphicon-search"></i> 查询</span>
                                       </div>
                                   </div>
                               </div>
@@ -152,26 +167,37 @@
                               <div class="form-group">
                                   <label class="col-sm-4 control-label">OPCServer(All):</label>
                                   <div class="col-sm-8">
-                                      <select class="form-control">
-                                          <option>点击上方查询按钮</option>
-                                      </select>
+                                      <div class="input-group">
+                                          <select class="form-control opcserverslist">
+                                              <option>点击上方查询按钮</option>
+                                          </select>
+                                          <span class="input-group-addon btn btn-default select-to-left"><i class="glyphicon glyphicon-arrow-left"></i> 选择</span>
+                                      </div>
+
                                   </div>
                               </div>
-
 
                               <div class="form-group">
 
                                   <label class="col-sm-4 control-label">OPCItems(All):</label>
                                   <div class="col-sm-8">
-                                      <textarea  rows="10" class="form-control"  placeholder="输入OPCItems"></textarea>
+                                      <textarea  rows="10" class="form-control" id="NewOPCItems" placeholder="输入OPCItems"></textarea>
                                   </div>
 
                               </div>
-                          </form>
+
+                              <div class="form-group">
+                                  <div class="col-sm-offset-4 col-sm-8">
+                                      <button type="button" class="btn btn-default postconfig">提交</button>
+                                      <button type="button" class="btn btn-default postconfigForced">强制提交</button>
+                                  </div>
+                              </div>
+                          </div>
                       </div>
                       <!--右侧-->
 
                   </div>
+                  <div class="panel-heading">操作日志：<span class="api-feed"></span></div>
               </div>
 
           </div>
@@ -240,6 +266,9 @@
 <!--<script type="text/javascript" src="static/userjs/opcview.js"></script>-->
 <!--<script type="text/javascript" src="static/userjs/mqtt-utility.js"></script>-->
 <script type="text/javascript">
+    function disable(){
+        return false;
+    }
     jsversion = Date.parse(new Date());
     document.write("<script type='text/javascript' src='static/userjs/opcview.js?v="+jsversion+"'></s"+"cript>");
     document.write("<script type='text/javascript' src='static/userjs/mqtt-utility.js?v="+jsversion+"'></s"+"cript>");
