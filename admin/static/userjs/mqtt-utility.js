@@ -263,7 +263,7 @@ function onConnected(reconnect=true, uri) {
   // Once a connection has been made, make a subscription and send a message.
   logMessage("INFO", "Client Has now connected: [Reconnected: ", reconnect, ", URI: ", uri, "]");
   mqttc_connected = true;
-  mqtt_client.subscribe(['v1/opcdabrg/api/RESULT', 'v1/opcdabrg/OPCDABRG_DATAS/#', 'v1/opcdabrg/OPCDABRG_LOGS/#']);
+  mqtt_client.subscribe(['v1/opcdabrg/api/RESULT','v1/opcdabrg/OPCDABRG_STATUS/#',  'v1/opcdabrg/OPCDABRG_DATAS/#', 'v1/opcdabrg/OPCDABRG_LOGS/#']);
 
 
 }
@@ -289,6 +289,12 @@ function onMessageArrived(message) {
     var arr_topic = message.destinationName.split("/");
     // console.log(arr_topic[3]);
     // logMessage("INFO", "Message Recieved: [Topic: ", message.destinationName, ", Payload: ", message.payloadString, ", QoS: ", message.qos, ", Retained: ", message.retained, ", Duplicate: ", message.duplicate, "]");
+    if(arr_topic[2]==="OPCDABRG_STATUS"){
+        // console.log(message.payloadString);
+        var status_message = JSON.parse(message.payloadString);
+        $(".OPCServerStatus").text(status_message[2]);
+    }
+
     if(arr_topic[2]==="OPCDABRG_LOGS"){
         console.log(message.payloadString);
         var log_message = JSON.parse(message.payloadString);

@@ -30,10 +30,12 @@ var opcdaBRG_status_ret= setInterval(function(){
         message.destinationName = 'v1/opcdabrg/api/getConfig';
         message.qos = 0;
         mqtt_client.send(message);
+        /*
         message = new Paho.Message(JSON.stringify({"id":'tunnelStatus/' + Date.parse(new Date()).toString()}));
         message.destinationName = 'v1/opcdabrg/api/tunnelStatus';
         message.qos = 0;
         mqtt_client.send(message);
+        */
     }
 
 },2000);

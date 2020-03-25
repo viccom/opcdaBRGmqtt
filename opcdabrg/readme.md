@@ -1,5 +1,6 @@
 pub:
 v1/opcdabrg/api/setConfig
+v1/opcdabrg/api/setConfigForced
 v1/opcdabrg/api/getConfig
 v1/opcdabrg/api/opcservers_list
 v1/opcdabrg/api/opctags_list

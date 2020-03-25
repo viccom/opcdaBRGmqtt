@@ -103,7 +103,7 @@ class OPCDATunnel(threading.Thread):
 		return True
 
 	def opctunnel_isrunning(self):
-		return self._opctunnel_isrunning
+		return self._opcdaclient.isconnected
 
 	def run(self):
 		self._opcdaclient = OpenOPC.client()
@@ -128,6 +128,7 @@ class OPCDATunnel(threading.Thread):
 				pass
 				# print(self._opcConfig.get('opcname'), self._opcConfig.get('opcitems'))
 		while not self._thread_stop:
+			self._mqttpub.opcdabrg_status(self.mqtt_clientid, json.dumps([int(time.time()), 'status', self._opcdaclient.isconnected]))
 			if not self._opctunnel_isrunning:
 				time.sleep(1)
 				continue
