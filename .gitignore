@@ -14,6 +14,7 @@ log
 build/
 develop-eggs/
 dist/
+OpenOPCDA/
 downloads/
 eggs/
 .eggs/
@@ -113,3 +114,4 @@ OpenOPCDA/pub_opcconfig.py
 OpenOPCDA/sub_opcdatas.py
 OpenOPCDA/sub_opclogs.py
 userdata/
+admin/index.html

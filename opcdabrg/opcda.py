@@ -52,17 +52,17 @@ def list_OPCServers(opchost):
 	opc.close()
 	return _ServersList
 
-def opcInfo(opcdaserv):
+def opcInfo(opcdaserv, opchost):
 	opc = OpenOPC.client()
-	opc.connect(opcdaserv)
+	opc.connect(opcdaserv, opc_host=opchost)
 	opcinfo = opc.info()
 	opc.close()
 	return opcinfo
 
 
-def opcTagsList(opcdaserv):
+def opcTagsList(opcdaserv, opchost):
 	opc = OpenOPC.client()
-	opc.connect(opcdaserv)
+	opc.connect(opcdaserv, opc_host=opchost)
 	TagsList = None
 	if opc.isconnected:
 		TagsList = opc.list('*', flat=True)
@@ -75,8 +75,9 @@ def opcReadItem(client, items):
 	return v
 
 
-def opcWriteItem(opcdaserv, item, value):
+def opcWriteItem(opcdaserv, opchost, item, value):
 	opc = OpenOPC.client()
-	opc.connect(opcdaserv)
-	print(opc.write((item, value)))
+	opc.connect(opcdaserv, opc_host=opchost)
+	ret = opc.write((item, value))
 	opc.close()
+	return ret

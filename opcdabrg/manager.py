@@ -36,8 +36,8 @@ class OPCDABRGManager(threading.Thread):
     def list_opcservers(self, opchost=None):
         return list_OPCServers(opchost)
 
-    def list_opctags(self, opcserver):
-        result = opcTagsList(opcserver)
+    def list_opctags(self, opcserver, opchost=None):
+        result = opcTagsList(opcserver, opchost)
         return result
 
     def on_setConfig(self, opcConfig):

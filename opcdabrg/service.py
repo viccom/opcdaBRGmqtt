@@ -52,6 +52,7 @@ class OPCDABRG_Service(BaseService):
     @whitelist.__func__
     def api_setConfig(self, id, params):
         # print("params:", params)
+        # opcConfig = {"opcname":"name", "opchost":"host", "opcitems":['item1','item2'], "opctags": [['name','type','item'],['name','type','item']]}
         opcConfig = params.get('config')
         ret = None
         if opcConfig.get('opcname') and opcConfig.get('clientid') and opcConfig.get('opctags'):
@@ -94,6 +95,7 @@ class OPCDABRG_Service(BaseService):
     @whitelist.__func__
     def api_deviceWrite(self, id, params):
         # print("params:", params)
+        # tags_values = [(item, value),(item, value)] or (item, value)
         tags_values = params.get('tags_values')
         ret = self._manager.on_deviceWrite(tags_values)
         if ret:

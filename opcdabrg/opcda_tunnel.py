@@ -53,17 +53,37 @@ class OPCDATunnel(threading.Thread):
 		if opcClient.isconnected:
 			try:
 				datas = opcClient.read(self._opcConfig.get('opcitems'), sync=True)
-				opcClient.close()
 				return datas
 			except Exception as ex:
 				logging.warning('readItem err!err!err!')
 				logging.exception(ex)
 				opcClient.close()
+			finally:
+				opcClient.close()
 		else:
 			return None
 
 	def set_opcDatas(self, tags_values):
-		return True
+		opcClient = OpenOPC.client()
+		try:
+			opcClient.connect(self._opcConfig.get('opcname'), self._opcConfig.get('opchost') or 'localhost')
+		except Exception as ex:
+			logging.warning('connect OPCDA Server err!err!err!')
+			logging.exception(ex)
+		if opcClient.isconnected:
+			try:
+				retw = opcClient.write(tags_values)
+				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'write', str(retw)]))
+				return retw
+			except Exception as ex:
+				logging.warning('Write Item err!err!err!')
+				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'write', str(ex)]))
+				logging.exception(ex)
+				opcClient.close()
+			finally:
+				opcClient.close()
+		else:
+			return None
 
 	def opctunnel_pause(self):
 		self._opctunnel_isrunning = False
