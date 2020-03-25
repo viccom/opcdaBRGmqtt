@@ -62,7 +62,6 @@ def opcInfo(opcdaserv, opchost):
 
 def opcTagsList(opcdaserv, opchost):
 	opc = OpenOPC.client()
-	print(opchost)
 	opc.connect(opcdaserv, opc_host=opchost)
 	TagsList = None
 	if opc.isconnected:
