@@ -27,21 +27,26 @@ if __name__ == '__main__':
     log_level = 'INFO'
     log_filenum = 9
     log_maxsize = 4
+    webadmin_autorun = 0
     config = ConfigParser()
     if os.access(os.getcwd() + '\\config.ini', os.F_OK):
         config.read('config.ini')
         if config.get('log', 'level'):
-            log_level = config.get('log', 'level')
+            log_level = config.get('log', 'level').upper()
         if config.get('log', 'filenum'):
-            log_filenum = int(config.get('log', 'filenum'))
+            log_filenum = config.getint('log', 'filenum')
         if config.get('log', 'maxsize'):
-            log_maxsize = int(config.get('log', 'maxsize'))
+            log_maxsize = config.getint('log', 'maxsize')
+        if config.get('autorun', 'webadmin'):
+            webadmin_autorun = config.getint('autorun', 'webadmin')
     else:
         config.read('config.ini')
         config.add_section("log")
         config.set("log", 'level', 'INFO')
         config.set("log", 'filenum', '9')
         config.set("log", 'maxsize', '4')
+        config.add_section("autorun")
+        config.set("autorun", 'webadmin', '0')
         config.write(open('config.ini', 'w'))
     level = logging.getLevelName(log_level)
     logging.basicConfig(level=level, format=formatter)
@@ -70,6 +75,7 @@ if __name__ == '__main__':
         time.sleep(1)
 
     logging.info("Staring Admin!!")
-    # webbrowser.open("http://localhost:3080")
+    if webadmin_autorun:
+        webbrowser.open("http://localhost:3080")
     start_admin(blueprints, context)
     logging.info("CLOSING!!")

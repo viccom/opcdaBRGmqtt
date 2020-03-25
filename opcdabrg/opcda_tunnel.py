@@ -31,11 +31,11 @@ class OPCDATunnel(threading.Thread):
 
 	def start_opctunnel(self, opcConfig):
 		if self._opcdaclient.isconnected:
-			print("1. _opcdaclient is linked:: ", self._opcdaclient.isconnected)
+			logging.info("1. _opcdaclient is linked:: ", self._opcdaclient.isconnected)
 			self._opcdaclient.close()
-			print("2. close _opcdaclient:: ", self._opcdaclient.isconnected)
+			logging.warning("2. close _opcdaclient:: ", self._opcdaclient.isconnected)
 		else:
-			print("3. _opcdaclient is closed:: ")
+			logging.warning("3. _opcdaclient is closed:: ")
 		self._opcConfig = opcConfig
 		self.mqtt_clientid = opcConfig.get('clientid')
 		save_csv('userdata/opcconfig.csv', self._opcConfig)

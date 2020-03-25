@@ -21,10 +21,10 @@ broker_config = {
         #     "keyfile": "localhost_key.key"
         # },
         "my-tcp-1": {
-            "bind": "127.0.0.1:3883"
+            "bind": "0.0.0.0:3883"
         },
         "my-ws-1": {
-            "bind": "127.0.0.1:3884",
+            "bind": "0.0.0.0:3884",
             "type": "ws"
         }
     },
