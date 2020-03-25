@@ -379,7 +379,8 @@ function onMessageArrived(message) {
                     });
                     $("select.opcserverslist").get(0).selectedIndex = 0;
                     var opcservername = $("select.opcserverslist").val();
-                    var message = new Paho.Message(JSON.stringify({"id":'opctags_list/' + Date.parse(new Date()).toString(), "opcserver":opcservername}));
+                    var opchost = $("#OPCServerHost").val();
+                    var message = new Paho.Message(JSON.stringify({"id":'opctags_list/' + Date.parse(new Date()).toString(), "opcserver":opcservername,  "opchost":opchost}));
                     message.destinationName = 'v1/opcdabrg/api/opctags_list';
                     message.qos = 0;
 

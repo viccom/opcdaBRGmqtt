@@ -72,7 +72,8 @@ $("select.opcserverslist").change(function() {
     // console.log(options.val());
     if($("select.opcserverslist option:selected").val()!="点击上方查询按钮"){
         var opcservername = $(this).val();
-        var message = new Paho.Message(JSON.stringify({"id":'opctags_list/' + Date.parse(new Date()).toString(), "opcserver":opcservername}));
+        var opchost = $("#OPCServerHost").val();
+        var message = new Paho.Message(JSON.stringify({"id":'opctags_list/' + Date.parse(new Date()).toString(), "opcserver":opcservername, "opchost":opchost}));
         message.destinationName = 'v1/opcdabrg/api/opctags_list';
         message.qos = 0;
         mqtt_client.send(message);

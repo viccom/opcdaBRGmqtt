@@ -43,7 +43,8 @@ class OPCDABRG_Service(BaseService):
     def api_opctags_list(self, id, params):
         # print("params:", params)
         opcserver = params.get('opcserver')
-        ret = self._manager.list_opctags(opcserver)
+        opchost = params.get('opchost') or 'localhost'
+        ret = self._manager.list_opctags(opcserver, opchost)
         if ret:
             return self.success("api", id, ret)
         else:
