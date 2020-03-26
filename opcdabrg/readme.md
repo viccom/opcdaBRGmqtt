@@ -5,10 +5,15 @@ v1/opcdabrg/api/getConfig
 v1/opcdabrg/api/opcservers_list
 v1/opcdabrg/api/opctags_list
 v1/opcdabrg/api/deviceRead
+v1/opcdabrg/api/deviceWrite
 v1/opcdabrg/api/tunnelStatus
+v1/opcdabrg/api/tunnelPause
+v1/opcdabrg/api/tunnelResume
+v1/opcdabrg/api/tunnelClean
 sub:
 v1/opcdabrg/api/RESULT
 
 sub:
+v1/opcdabrg/OPCDABRG_STATUS/#
 v1/opcdabrg/OPCDABRG_DATAS/#
 v1/opcdabrg/OPCDABRG_LOGS/#

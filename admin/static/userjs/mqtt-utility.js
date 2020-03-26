@@ -29,28 +29,28 @@ var mqtt_port = 3884;
 /**
  *	临时兼容IE，去掉可变参数
  */
-// function logMessage(type, content) {
-//     if (type === "INFO") {
-//         console.info(content);
-//     } else if (type === "ERROR") {
-//         console.error(content);
-//     } else {
-//         console.log(content);
-//     }
-// }
+function logMessage(type, content) {
+    if (type === "INFO") {
+        console.info(content);
+    } else if (type === "ERROR") {
+        console.error(content);
+    } else {
+        console.log(content);
+    }
+}
 
 /**
  *	日志处理
  */
-function logMessage(type, ...content) {
-    if (type === "INFO") {
-        console.info(...content);
-    } else if (type === "ERROR") {
-        console.error(...content);
-    } else {
-        console.log(...content);
-    }
-}
+// function logMessage(type, ...content) {
+//     if (type === "INFO") {
+//         console.info(...content);
+//     } else if (type === "ERROR") {
+//         console.error(...content);
+//     } else {
+//         console.log(...content);
+//     }
+// }
 
 function isEmpty(obj){
     if(typeof obj == "undefined" || obj == null || obj == ""){
@@ -70,7 +70,7 @@ function makeid() {
     return text;
 }
 
-logMessage("INFO", "Starting Eclipse Paho JavaScript Utility.");
+// logMessage("INFO", "Starting Eclipse Paho JavaScript Utility.");
 
 // Things to do as soon as the page loads
 // document.getElementById("clientIdInput").value = "js-utility-" + makeid();
@@ -251,7 +251,7 @@ function CharToHex(str) {
 function onConnect(context) {
   // Once a connection has been made, make a subscription and send a message.
   var connectionString = context.invocationContext.host + ":" + context.invocationContext.port + context.invocationContext.path;
-  logMessage("INFO", "Connection Success ", "[URI: ", connectionString, ", ID: ", context.invocationContext.clientId, "]");
+  // logMessage("INFO", "Connection Success ", "[URI: ", connectionString, ", ID: ", context.invocationContext.clientId, "]");
   // var statusSpan = document.getElementById("connectionStatus");
   // statusSpan.innerHTML = "Connected to: " + connectionString + " as " + context.invocationContext.clientId;
   mqttc_connected = true;
@@ -259,17 +259,21 @@ function onConnect(context) {
 }
 
 
-function onConnected(reconnect=true, uri) {
+function onConnected(reconnect=false, uri) {
   // Once a connection has been made, make a subscription and send a message.
-  logMessage("INFO", "Client Has now connected: [Reconnected: ", reconnect, ", URI: ", uri, "]");
-  mqttc_connected = true;
-  mqtt_client.subscribe(['v1/opcdabrg/api/RESULT','v1/opcdabrg/OPCDABRG_STATUS/#',  'v1/opcdabrg/OPCDABRG_DATAS/#', 'v1/opcdabrg/OPCDABRG_LOGS/#']);
-
+  //   logMessage("INFO", "Client Has now connected: [Reconnected: ", reconnect, ", URI: ", uri, "]");
+    mqttc_connected = true;
+    mqtt_client.subscribe(['v1/opcdabrg/api/RESULT','v1/opcdabrg/OPCDABRG_STATUS/#',  'v1/opcdabrg/OPCDABRG_DATAS/#', 'v1/opcdabrg/OPCDABRG_LOGS/#']);
+    // var message = new Paho.Message(JSON.stringify({"id":'getConfig/' + Date.parse(new Date()).toString()}));
+    // message.destinationName = 'v1/opcdabrg/api/getConfig';
+    // message.qos = 0;
+    // mqtt_client.send(message);
 
 }
 
 function onFail(context) {
-  logMessage("ERROR", "Failed to connect. [Error Message: ", context.errorMessage, "]");
+    console.log("Failed to connect. [Error Message: ", context.errorMessage);
+  // logMessage("ERROR", "Failed to connect. [Error Message: ", context.errorMessage, "]");
   // var statusSpan = document.getElementById("connectionStatus");
   // statusSpan.innerHTML = "Failed to connect: " + context.errorMessage;
   mqttc_connected = false;
@@ -278,7 +282,8 @@ function onFail(context) {
 // called when the client loses its connection
 function onConnectionLost(responseObject) {
   if (responseObject.errorCode !== 0) {
-    logMessage("INFO", "Connection Lost. [Error Message: ", responseObject.errorMessage, "]");
+      console.log("Connection Lost. Error Message: ", responseObject.errorMessage);
+    // logMessage("INFO", "Connection Lost. [Error Message: ", responseObject.errorMessage, "]");
   }
   mqttc_connected = false;
 }
@@ -319,6 +324,24 @@ function onMessageArrived(message) {
     if(arr_topic[3]==="RESULT"){
         // console.log(message.payloadString);
         var apiResult_message = JSON.parse(message.payloadString);
+        if(apiResult_message.result){
+            var local_datetime = new Date(parseInt(new Date().getTime())).toLocaleString('chinese', { hour12: false });
+            var max_str = JSON.stringify(apiResult_message.data);
+            if(JSON.stringify(apiResult_message.data).length > 64){
+                max_str = JSON.stringify(apiResult_message.data).slice(0,64) + ' ...';
+            }
+            var new_log_message = [local_datetime, 'api', apiResult_message['id'] + ":" + max_str];
+            log_table.row.add(new_log_message).draw();
+        }else{
+            var local_datetime = new Date(parseInt(new Date().getTime())).toLocaleString('chinese', { hour12: false });
+            var max_str = JSON.stringify(apiResult_message.error);
+            if(JSON.stringify(apiResult_message.error).length > 64){
+                max_str = JSON.stringify(apiResult_message.error).slice(0,64) + ' ...';
+            }
+            var new_log_message = [local_datetime, 'api', apiResult_message['id'] + ":" + max_str];
+            log_table.row.add(new_log_message).draw();
+        }
+
         // console.log(apiResult_message['id']);
 
         if(apiResult_message['id'].indexOf("setConfig") != -1 ){
@@ -327,7 +350,9 @@ function onMessageArrived(message) {
         }
 
         if(apiResult_message['id'].indexOf("getConfig") != -1 ){
+            // console.log(apiResult_message);
             if(apiResult_message.result){
+
                 $(".OPCServerName").text(apiResult_message['data']['opcname']);
                 $(".OPCServerHost").text(apiResult_message['data']['opchost']);
                 $("#ClientID").val(apiResult_message['data']['clientid']);
@@ -371,11 +396,17 @@ function onMessageArrived(message) {
             }
         }
 
+        if(apiResult_message['id'].indexOf("tunnelClean") != -1 ){
+            if(apiResult_message.result) {
+                $(".OPCServerStatus").text(apiResult_message['data']);
+            }
+        }
+
         if(apiResult_message['id'].indexOf("opcservers_list") != -1 ){
             $("span.api-feed").text(apiResult_message.id + ":" + apiResult_message.result);
             // console.log(message.destinationName);
             if(apiResult_message.result){
-                // console.log(apiResult_message['data']);
+                console.log(apiResult_message);
                 $("select.opcserverslist").empty();
                 var opcservers_data = apiResult_message['data'];
                 if(opcservers_data.length>0){
@@ -439,7 +470,7 @@ function connect() {
   } else {
     mqtt_client =new Paho.Client(hostname, Number(port), clientId);
   }
-  logMessage("INFO", "Connecting to Server: [Host: ", hostname, ", Port: ", port, ", Path: ", mqtt_client.path, ", ID: ", clientId, ", USER: ", user,", PASS: ", pass,"]");
+  // logMessage("INFO", "Connecting to Server: [Host: ", hostname, ", Port: ", port, ", Path: ", mqtt_client.path, ", ID: ", clientId, ", USER: ", user,", PASS: ", pass,"]");
 
   // set callback handlers
   mqtt_client.onConnectionLost = onConnectionLost;
@@ -453,7 +484,7 @@ function connect() {
     keepAliveInterval: keepAlive,
     cleanSession: cleanSession,
     useSSL: tls,
-    reconnect: true,
+    reconnect: false,
     onSuccess: onConnect,
     onFailure: onFail
   };
@@ -492,7 +523,7 @@ function connect() {
 }
 
 function disconnect() {
-  logMessage("INFO", "Disconnecting from Server.");
+  // logMessage("INFO", "Disconnecting from Server.");
   mqtt_client.disconnect();
   // var statusSpan = document.getElementById("connectionStatus");
   // statusSpan.innerHTML = "Connection - Disconnected.";
@@ -505,7 +536,7 @@ function publish() {
   var qos = document.getElementById("publishQosInput").value;
   var message = document.getElementById("publishMessageInput").value;
   var retain = document.getElementById("publishRetainInput").checked;
-  logMessage("INFO", "Publishing Message: [Topic: ", topic, ", Payload: ", message, ", QoS: ", qos, ", Retain: ", retain, "]");
+  // logMessage("INFO", "Publishing Message: [Topic: ", topic, ", Payload: ", message, ", QoS: ", qos, ", Retain: ", retain, "]");
   message = new Paho.Message(message);
   message.destinationName = topic;
   message.qos = Number(qos);
@@ -523,7 +554,7 @@ function subscribe() {
 
 function unsubscribe() {
   var topic = document.getElementById("subscribeTopicInput").value;
-  logMessage("INFO", "Unsubscribing: [Topic: ", topic, "]");
+  // logMessage("INFO", "Unsubscribing: [Topic: ", topic, "]");
   mqtt_client.unsubscribe(topic, {
     onSuccess: unsubscribeSuccess,
     onFailure: unsubscribeFailure,
@@ -533,11 +564,11 @@ function unsubscribe() {
 
 
 function unsubscribeSuccess(context) {
-  logMessage("INFO", "Unsubscribed. [Topic: ", context.invocationContext.topic, "]");
+  // logMessage("INFO", "Unsubscribed. [Topic: ", context.invocationContext.topic, "]");
 }
 
 function unsubscribeFailure(context) {
-  logMessage("ERROR", "Failed to unsubscribe. [Topic: ", context.invocationContext.topic, ", Error: ", context.errorMessage, "]");
+  // logMessage("ERROR", "Failed to unsubscribe. [Topic: ", context.invocationContext.topic, ", Error: ", context.errorMessage, "]");
 }
 
 function clearHistory() {

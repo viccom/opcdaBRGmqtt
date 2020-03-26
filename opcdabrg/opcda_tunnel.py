@@ -19,9 +19,11 @@ class OPCDATunnel(threading.Thread):
 		threading.Thread.__init__(self)
 		self._mqttpub = mqttpub
 		self._opctunnel_isrunning = False
-		self._opcConfig = None
+		self._opcConfig = {}
 		self._opcdaclient = None
 		self._timeInterval = 1
+		self._isReading = False
+		self._opctunnel_isrunning = False
 		self._count = 0
 		self.mqtt_clientid = None
 		self._thread_stop = False
@@ -31,11 +33,11 @@ class OPCDATunnel(threading.Thread):
 
 	def start_opctunnel(self, opcConfig):
 		if self._opcdaclient.isconnected:
-			logging.info("1. _opcdaclient is linked:: ", self._opcdaclient.isconnected)
+			logging.info("1. _opcdaclient is linked!")
 			self._opcdaclient.close()
-			logging.warning("2. close _opcdaclient:: ", self._opcdaclient.isconnected)
+			logging.warning("2. close _opcdaclient!")
 		else:
-			logging.warning("3. _opcdaclient is closed:: ")
+			logging.warning("3. _opcdaclient has closed!")
 		self._opcConfig = opcConfig
 		self.mqtt_clientid = opcConfig.get('clientid')
 		save_csv('userdata/opcconfig.csv', self._opcConfig)
@@ -94,12 +96,18 @@ class OPCDATunnel(threading.Thread):
 		return True
 
 	def opctunnel_clean(self):
+		# print("clean::", self._opctunnel_isrunning, len(self._opcConfig), self._isReading)
+		while self._isReading:
+			# logging.info('wait clean')
+			time.sleep(1)
+		self._opctunnel_isrunning = False
+		self._opcConfig = {}
+		self.mqtt_clientid = None
 		if self._opcdaclient and self._opcdaclient.isconnected:
 			logging.info("opcdaclient closing!")
 			self._opcdaclient.close()
-		self._opctunnel_isrunning = None
-		self._opcConfig = None
 		logging.info("opctunnel has cleaned!")
+		# print("clean end::", self._opctunnel_isrunning, self._opcConfig, self._isReading)
 		return True
 
 	def opctunnel_isrunning(self):
@@ -128,14 +136,26 @@ class OPCDATunnel(threading.Thread):
 				pass
 				# print(self._opcConfig.get('opcname'), self._opcConfig.get('opcitems'))
 		while not self._thread_stop:
-			self._mqttpub.opcdabrg_status(self.mqtt_clientid, json.dumps([int(time.time()), 'status', self._opcdaclient.isconnected]))
-			if not self._opctunnel_isrunning:
+			if self._opcdaclient.isconnected is True:
+				self._mqttpub.opcdabrg_status(self.mqtt_clientid, json.dumps([int(time.time()), 'status', "online"]))
+			else:
+				self._mqttpub.opcdabrg_status(self.mqtt_clientid,
+				                              json.dumps([int(time.time()), 'status', 'offline']))
+			# print(self._opctunnel_isrunning, len(self._opcConfig), self._isReading)
+			if not self._opctunnel_isrunning or not self._opcConfig:
+				# print("idle!")
 				time.sleep(1)
 				continue
+			# else:
+			# 	self._isReading = True
+			# 	print("busy!")
+			# 	time.sleep(5)
+			# 	self._isReading = False
 			elif self._opcdaclient.isconnected:
 				self._count = 0
 				try:
 					# print('opcitems::', self._opcConfig.get('opcitems'))
+					self._isReading = True
 					datas = self._opcdaclient.read(self._opcConfig.get('opcitems'), sync=True)
 					# print('datas::', json.dumps(datas, cls=DecimalEncoder))
 					self._mqttpub.opcdabrg_datas(self.mqtt_clientid, json.dumps(datas, cls=DecimalEncoder))
@@ -145,12 +165,13 @@ class OPCDATunnel(threading.Thread):
 					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'read', str(ex)]))
 					self._opcdaclient.close()
 				finally:
+					self._isReading = False
 					time.sleep(self._timeInterval)
 			else:
 				time.sleep(0.1)
 				self._opcdaclient = OpenOPC.client()
 				try:
-					print(self._count, self._opcConfig.get('opcname'), self._opcConfig.get('opchost'))
+					logging.info(str(self._count) + ": reconnect " + self._opcConfig.get('opcname') + self._opcConfig.get('opchost'))
 					self._opcdaclient.connect(self._opcConfig.get('opcname'), self._opcConfig.get('opchost') or 'localhost')
 					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', 'connect ' + self._opcConfig.get('opcname') + ' successful']) )
 				except Exception as ex:

@@ -61,7 +61,7 @@ class OPCDABRG_Service(BaseService):
         if ret:
             return self.success("api", id, ret)
         else:
-            return self.failure("api", id, "no")
+            return self.failure("api", id, "json dissatisfy")
 
     @whitelist.__func__
     def api_setConfigForced(self, id, params):
@@ -82,7 +82,7 @@ class OPCDABRG_Service(BaseService):
         if ret:
             return self.success("api", id, ret)
         else:
-            return self.failure("api", id, "no")
+            return self.failure("api", id, "no opcConfig")
 
     @whitelist.__func__
     def api_deviceRead(self, id, params):

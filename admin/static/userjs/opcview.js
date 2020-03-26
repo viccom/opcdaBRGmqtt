@@ -12,9 +12,9 @@ var mqtt_status_ret= setInterval(function(){
         $(".MQTTStatus").text("已连接");
     }else{
         $(".MQTTStatus").text("重连中");
-        $("select.opcserverslist").empty();
-        $("select.opcserverslist").append("<option value='点击上方查询按钮'></option>");
-        $("#NewOPCItems").val('');
+        // $("select.opcserverslist").empty();
+        // $("select.opcserverslist").append("<option value='点击上方查询按钮'></option>");
+        // $("#NewOPCItems").val('');
         connect();
     }
 
@@ -23,6 +23,7 @@ var mqtt_status_ret= setInterval(function(){
 /**
  *	周期获取opcdaBRG状态
  */
+
 var opcdaBRG_status_ret= setInterval(function(){
     if(mqttc_connected){
         // console.log('查询opcdaBRG状态');
@@ -30,15 +31,8 @@ var opcdaBRG_status_ret= setInterval(function(){
         message.destinationName = 'v1/opcdabrg/api/getConfig';
         message.qos = 0;
         mqtt_client.send(message);
-        /*
-        message = new Paho.Message(JSON.stringify({"id":'tunnelStatus/' + Date.parse(new Date()).toString()}));
-        message.destinationName = 'v1/opcdabrg/api/tunnelStatus';
-        message.qos = 0;
-        mqtt_client.send(message);
-        */
     }
-
-},2000);
+},5000);
 
 
 $('span.reset').click(function(){
@@ -50,10 +44,12 @@ $('span.reset').click(function(){
 });
 
 $('span.opc-query').click(function(){
-    var message = new Paho.Message(JSON.stringify({"id":'opcservers_list/' + Date.parse(new Date()).toString()}));
-    message.destinationName = 'v1/opcdabrg/api/opcservers_list';
-    message.qos = 0;
-    mqtt_client.send(message);
+    if(mqttc_connected) {
+        var message = new Paho.Message(JSON.stringify({"id": 'opcservers_list/' + Date.parse(new Date()).toString()}));
+        message.destinationName = 'v1/opcdabrg/api/opcservers_list';
+        message.qos = 0;
+        mqtt_client.send(message);
+    }
     // console.log(2)
 });
 
@@ -75,10 +71,16 @@ $("select.opcserverslist").change(function() {
     if($("select.opcserverslist option:selected").val()!="点击上方查询按钮"){
         var opcservername = $(this).val();
         var opchost = $("#OPCServerHost").val();
-        var message = new Paho.Message(JSON.stringify({"id":'opctags_list/' + Date.parse(new Date()).toString(), "opcserver":opcservername, "opchost":opchost}));
-        message.destinationName = 'v1/opcdabrg/api/opctags_list';
-        message.qos = 0;
-        mqtt_client.send(message);
+        if(mqttc_connected) {
+            var message = new Paho.Message(JSON.stringify({
+                "id": 'opctags_list/' + Date.parse(new Date()).toString(),
+                "opcserver": opcservername,
+                "opchost": opchost
+            }));
+            message.destinationName = 'v1/opcdabrg/api/opctags_list';
+            message.qos = 0;
+            mqtt_client.send(message);
+        }
     }else{
         $("span.api-feed").text("点击上方查询按钮获取OPCServer列表");
     }
@@ -106,10 +108,15 @@ $('button.postconfig').click(function(){
 
     if(opc_config.opcname!=="点击上方查询按钮" && opcitems.length>0){
         // console.log(opc_config);
-        var message = new Paho.Message(JSON.stringify({"id":'setConfig/' + Date.parse(new Date()).toString(),"config":opc_config}));
-        message.destinationName = 'v1/opcdabrg/api/setConfig';
-        message.qos = 0;
-        mqtt_client.send(message);
+        if(mqttc_connected) {
+            var message = new Paho.Message(JSON.stringify({
+                "id": 'setConfig/' + Date.parse(new Date()).toString(),
+                "config": opc_config
+            }));
+            message.destinationName = 'v1/opcdabrg/api/setConfig';
+            message.qos = 0;
+            mqtt_client.send(message);
+        }
     }else{
         $("span.api-feed").text("未选择OPCServer或OPC标签为空");
     }
@@ -137,15 +144,33 @@ $('button.postconfigForced').click(function(){
 
     if(opc_config.opcname!=="点击上方查询按钮" && opcitems.length>0){
         console.log(opc_config);
-        var message = new Paho.Message(JSON.stringify({"id":'setConfigForced/' + Date.parse(new Date()).toString(),"config":opc_config}));
-        message.destinationName = 'v1/opcdabrg/api/setConfigForced';
-        message.qos = 0;
-        mqtt_client.send(message);
+        if(mqttc_connected) {
+            var message = new Paho.Message(JSON.stringify({
+                "id": 'setConfigForced/' + Date.parse(new Date()).toString(),
+                "config": opc_config
+            }));
+            message.destinationName = 'v1/opcdabrg/api/setConfigForced';
+            message.qos = 0;
+            mqtt_client.send(message);
+        }
     }else{
         $("span.api-feed").text("未选择OPCServer或OPC标签为空");
     }
 });
 
+
+$('span.log-clean').click(function(){
+    log_table.clear().draw();
+});
+
+$('button.cleanTunnel').click(function(){
+    if(mqttc_connected) {
+        var message = new Paho.Message(JSON.stringify({"id": 'tunnelClean/' + Date.parse(new Date()).toString()}));
+        message.destinationName = 'v1/opcdabrg/api/tunnelClean';
+        message.qos = 0;
+        mqtt_client.send(message);
+    }
+});
 
 $(function () {
 
@@ -293,190 +318,4 @@ $(function () {
 
 })
 
-/**
- *	周期检测mqtt状态
- */
-/*
 
-var mqtt_status_ret= setInterval(function(){
-    $(".log_nums").text(table_log.data().length);
-    if(mqttc_connected){
-        $(".appinfo-upload").text("停止");
-        $(".appinfo-upload").addClass("btn-warning");
-        $(".appinfo-upload").removeClass("btn-primary");
-    }else{
-        $(".appinfo-upload").text("连接");
-        $(".appinfo-upload").addClass("btn-primary");
-        $(".appinfo-upload").removeClass("btn-warning");
-    }
-    if(log_subscribed){
-        $(".btn-log-subscribe").text("取消订阅");
-        $(".btn-log-subscribe").addClass("btn-success");
-    }else{
-        $(".btn-log-subscribe").text("日志订阅");
-        $(".btn-log-subscribe").removeClass("btn-success");
-    }
-
-},1000);
-*/
-
-/**
- *	周期上传日志报文
- */
-
-/*
-
-var mqtt_upload_ret= setInterval(function(){
-    var lens=table_log.data().length;
-    if(lens<1000){
-        if(mqttc_connected){
-            if(log_subscribed){
-                var id = "sys_enable_log" + '/' + gate_sn + '/'+ Date.parse(new Date())
-                var _act = {
-                    "device": gate_sn,
-                    "data": 60,
-                    "id": id
-                };
-                gate_upload_mes("sys_enable_log", _act)
-            }
-
-        }
-    }else{
-        mqtt_client.unsubscribe(gate_sn + "/" + "log", {
-            onSuccess: unsubscribeSuccess,
-            onFailure: unsubscribeFailure,
-            invocationContext: { topic: gate_sn + "/" + "log" }
-        });
-
-        log_subscribed = false;
-
-        $.notify({
-            title: "<strong>记录数超过接收队列:</strong><br><br> ",
-            message: "日志和报文记录数已经超过1000，需清除后才可继续接收！"
-        },{
-            type: 'warning',
-            delay: 29000
-        });
-    }
-
-},30000);
-
-*/
-
-/**
- *	开启日志和报文上传功能
- */
-/*
-$(".btn-log-subscribe").click(function(){
-    var lens=table_log.data().length;
-    if(mqttc_connected){
-        if(log_subscribed){
-            mqtt_client.unsubscribe(gate_sn + "/" + "log", {
-                onSuccess: unsubscribeSuccess,
-                onFailure: unsubscribeFailure,
-                invocationContext: { topic: gate_sn + "/" + "log" }
-            });
-            log_subscribed = false;
-            $(".btn-log-subscribe").removeClass("btn-success");
-        }else{
-            try {
-                if(lens<1000){
-                    mqtt_client.subscribe(gate_sn + "/" + "log", {qos: 0});
-                    log_subscribed = true;
-                    $(".btn-log-subscribe").addClass("btn-success");
-                    var id = "sys_enable_log" + '/' + gate_sn + '/'+ Date.parse(new Date())
-                    var _act = {
-                        "device": gate_sn,
-                        "data": 60,
-                        "id": id
-                    };
-                    gate_upload_mes("sys_enable_log", _act)
-                }else{
-                    $.notify({
-                        title: "<strong>记录数超过接收队列:</strong><br><br> ",
-                        message: "日志和报文记录数已经超过1000，需清除后才可继续接收！"
-                    },{
-                        delay: 5000
-                    });
-                }
-
-            } catch (error) {
-                console.log(error);
-                mqttc_connected = false;
-                log_subscribed = false;
-                $(".btn-log-subscribe").removeClass("btn-success");
-            }
-        }
-
-    }
-});
-
-$(".appinfo-clear").click(function(){
-    table_log.clear().draw();
-});
-*/
-
-
-
-
-/**
- *	过滤选择处理-start
- */
-/*
-
-$('div.log_filter li').on('click', function(){
-    $('.search_log').text($(this).text());
-    $('input.J_keyword').val("");
-    table_log.columns( 1 ).search("").draw();
-    table_log.columns( 2 ).search("").draw();
-    table_log.columns( 3 ).search("").draw();
-    table_log.search("").draw();
-
-});
-*/
-
-
-
-/*
-
-$("input.J_keyword").bind("input propertychange",function(event){
-    var key = $('input.J_keyword').val();
-    var colnum = 3;
-
-    if($('.search_log').text()=="内容"){
-        colnum = 3
-    }
-    if($('.search_log').text()=="ID"){
-        colnum = 2
-    }
-    if($('.search_log').text()=="类型"){
-        colnum = 1
-    }
-
-    console.log(colnum, key);
-    if(key!=null){
-        table_log.columns( colnum ).search(key).draw();
-    }
-});
-
-$('button.J_keyword').on('keyup click', function () {
-    var key = $('input.J_keyword').val();
-    var colnum = 3;
-
-    if ($('.search_log').text() == "内容") {
-        colnum = 3
-    }
-    if ($('.search_log').text() == "ID") {
-        colnum = 2
-    }
-    if ($('.search_log').text() == "类型") {
-        colnum = 1
-    }
-
-
-    table_log.columns(colnum).search(key, false, true).draw();
-});
-*/
-/**
- *	过滤选择处理-end
- */
