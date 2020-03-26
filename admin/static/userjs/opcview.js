@@ -163,7 +163,7 @@ $('span.log-clean').click(function(){
     log_table.clear().draw();
 });
 
-$('button.cleanTunnel').click(function(){
+$('span.cleanTunnel').click(function(){
     if(mqttc_connected) {
         var message = new Paho.Message(JSON.stringify({"id": 'tunnelClean/' + Date.parse(new Date()).toString()}));
         message.destinationName = 'v1/opcdabrg/api/tunnelClean';

@@ -398,7 +398,7 @@ function onMessageArrived(message) {
 
         if(apiResult_message['id'].indexOf("tunnelClean") != -1 ){
             if(apiResult_message.result) {
-                $(".OPCServerStatus").text(apiResult_message['data']);
+                $(".OPCServerStatus").text(apiResult_message.result);
             }
         }
 
