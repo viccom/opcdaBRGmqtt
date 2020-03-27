@@ -372,7 +372,15 @@ function onMessageArrived(message) {
                 max_str = JSON.stringify(apiResult_message.error).slice(0,64) + ' ...';
             }
             var new_log_message = [local_datetime, 'api', apiResult_message['id'] + ":" + max_str];
-            log_table.row.add(new_log_message).draw();
+            if(apiResult_message['id'].indexOf("getConfig") != -1 ){
+                // console.log(received_logs_num/60, isInteger(received_logs_num/60), apiResult_message);
+                if(isInteger(received_logs_num/60)){
+                    log_table.row.add(new_log_message).draw();
+                }
+                received_logs_num = received_logs_num + 1;
+            }else{
+                log_table.row.add(new_log_message).draw();
+            }
         }
 
         // console.log(apiResult_message['id']);
