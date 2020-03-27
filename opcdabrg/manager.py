@@ -59,16 +59,10 @@ class OPCDABRGManager(threading.Thread):
         return self._opcdatunnel.get_opcConfig()
 
     def on_deviceRead(self):
-        if self._opcdatunnel.opctunnel_isrunning():
-            return self._opcdatunnel.get_opcDatas()
-        else:
-            return None
+        return self._opcdatunnel.get_opcDatas()
 
     def on_deviceWrite(self, tags_values):
-        if not self._opcdatunnel.opctunnel_isrunning():
-            return self._opcdatunnel.set_opcDatas(tags_values)
-        else:
-            return None
+        return self._opcdatunnel.set_opcDatas(tags_values)
 
     def api_tunnelPause(self):
         return self._opcdatunnel.opctunnel_pause()
@@ -80,7 +74,10 @@ class OPCDABRGManager(threading.Thread):
         return self._opcdatunnel.opctunnel_clean()
 
     def opctunnel_status(self):
-        return self._opcdatunnel.opctunnel_isrunning()
+        return self._opcdatunnel.opcdaclient_isconnected()
+
+    def brg_status(self):
+        return self._opcdatunnel.brg_isrunning()
 
     def on_event(self, event, ul_value):
         return True

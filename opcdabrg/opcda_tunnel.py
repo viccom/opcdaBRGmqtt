@@ -89,11 +89,11 @@ class OPCDATunnel(threading.Thread):
 
 	def opctunnel_pause(self):
 		self._opctunnel_isrunning = False
-		return True
+		return {"brg_status": self._opctunnel_isrunning}
 
 	def opctunnel_resume(self):
 		self._opctunnel_isrunning = True
-		return True
+		return {"brg_status": self._opctunnel_isrunning}
 
 	def opctunnel_clean(self):
 		# print("clean::", self._opctunnel_isrunning, len(self._opcConfig), self._isReading)
@@ -110,8 +110,11 @@ class OPCDATunnel(threading.Thread):
 		# print("clean end::", self._opctunnel_isrunning, self._opcConfig, self._isReading)
 		return True
 
-	def opctunnel_isrunning(self):
+	def opcdaclient_isconnected(self):
 		return self._opcdaclient.isconnected
+
+	def brg_isrunning(self):
+		return {"brg_status": self._opctunnel_isrunning}
 
 	def run(self):
 		self._opcdaclient = OpenOPC.client()

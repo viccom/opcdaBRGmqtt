@@ -10,8 +10,10 @@ setTimeout(function () {
 var mqtt_status_ret= setInterval(function(){
     if(mqttc_connected){
         $(".MQTTStatus").text("已连接");
+        $(".MQTTStatus").addClass('label-success');
     }else{
         $(".MQTTStatus").text("重连中");
+        $(".MQTTStatus").removeClass('label-success');
         // $("select.opcserverslist").empty();
         // $("select.opcserverslist").append("<option value='点击上方查询按钮'></option>");
         // $("#NewOPCItems").val('');
@@ -27,7 +29,7 @@ var mqtt_status_ret= setInterval(function(){
 var opcdaBRG_status_ret= setInterval(function(){
     if(mqttc_connected){
         // console.log('查询opcdaBRG状态');
-        var message = new Paho.Message(JSON.stringify({"id":'getConfig/' + Date.parse(new Date()).toString()}));
+        var message = new Paho.Message(JSON.stringify({"id":'getConfig/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString()}));
         message.destinationName = 'v1/opcdabrg/api/getConfig';
         message.qos = 0;
         mqtt_client.send(message);
@@ -45,7 +47,7 @@ $('span.reset').click(function(){
 
 $('span.opc-query').click(function(){
     if(mqttc_connected) {
-        var message = new Paho.Message(JSON.stringify({"id": 'opcservers_list/' + Date.parse(new Date()).toString()}));
+        var message = new Paho.Message(JSON.stringify({"id": 'opcservers_list/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString()}));
         message.destinationName = 'v1/opcdabrg/api/opcservers_list';
         message.qos = 0;
         mqtt_client.send(message);
@@ -73,7 +75,7 @@ $("select.opcserverslist").change(function() {
         var opchost = $("#OPCServerHost").val();
         if(mqttc_connected) {
             var message = new Paho.Message(JSON.stringify({
-                "id": 'opctags_list/' + Date.parse(new Date()).toString(),
+                "id": 'opctags_list/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString(),
                 "opcserver": opcservername,
                 "opchost": opchost
             }));
@@ -110,7 +112,7 @@ $('button.postconfig').click(function(){
         // console.log(opc_config);
         if(mqttc_connected) {
             var message = new Paho.Message(JSON.stringify({
-                "id": 'setConfig/' + Date.parse(new Date()).toString(),
+                "id": 'setConfig/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString(),
                 "config": opc_config
             }));
             message.destinationName = 'v1/opcdabrg/api/setConfig';
@@ -146,7 +148,7 @@ $('button.postconfigForced').click(function(){
         console.log(opc_config);
         if(mqttc_connected) {
             var message = new Paho.Message(JSON.stringify({
-                "id": 'setConfigForced/' + Date.parse(new Date()).toString(),
+                "id": 'setConfigForced/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString(),
                 "config": opc_config
             }));
             message.destinationName = 'v1/opcdabrg/api/setConfigForced';
@@ -165,16 +167,52 @@ $('span.log-clean').click(function(){
 
 $('span.cleanTunnel').click(function(){
     if(mqttc_connected) {
-        var message = new Paho.Message(JSON.stringify({"id": 'tunnelClean/' + Date.parse(new Date()).toString()}));
+        var message = new Paho.Message(JSON.stringify({"id": 'tunnelClean/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString()}));
         message.destinationName = 'v1/opcdabrg/api/tunnelClean';
         message.qos = 0;
         mqtt_client.send(message);
     }
 });
 
+
+$('button.postValue').click(function(){
+    var itemid = $("span.itemId").text();
+    var itemvalue = $("input.itemValue").val();
+    if(!$.isEmptyObject(current_opcconfig)){
+        var opctags = current_opcconfig['opctags'];
+        // console.log(current_opcconfig);
+        $.each(opctags, function (i, v) {
+            // console.log(v[2]);
+            if(v[2]==itemid){
+
+                if(v[1]=="float"){
+                    itemvalue = parseFloat(itemvalue);
+                }
+                if(v[1]=="int"){
+                    itemvalue = parseInt(itemvalue);
+                }
+                if(v[1]=="boolean"){
+                    itemvalue = parseInt(itemvalue);
+                }
+            }
+        });
+
+        var tags_values = [itemid, itemvalue];
+        console.log(tags_values);
+
+        if(mqttc_connected) {
+            var message = new Paho.Message(JSON.stringify({"id": 'deviceWrite/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString(), "tags_values": tags_values}));
+            message.destinationName = 'v1/opcdabrg/api/deviceWrite';
+            message.qos = 0;
+            mqtt_client.send(message);
+        }
+    }
+
+
+
+});
+
 $(function () {
-
-
     /**
      *	初始化数据表格
      */
@@ -219,7 +257,7 @@ $(function () {
                 targets:  0,
                 "width": '20%',
                 searchable: true,
-                orderable: false
+                orderable: true
 
             },
             {
@@ -230,7 +268,7 @@ $(function () {
                 orderable: false
             },
             {
-                //   指定第第4列
+                //   指定第第3列
                 targets:  2,
                 "width": '10%',
                 searchable: true,
@@ -239,13 +277,27 @@ $(function () {
             {
                 //   指定第第4列
                 targets:  3,
-                "width": '50%',
+                "width": '40%',
+                searchable: false,
+                orderable: false
+            },
+            {
+                //   指定第第5列
+                targets:  4,
+                "width": '10%',
                 searchable: false,
                 orderable: false
             }
         ],
         "initComplete": function(settings, json) {
-            console.log("data_table init over")
+            console.log("data_table init over");
+            $("body").on("click", "button.writeItem", function() {
+                var opcitem =$(this).data('id');
+                // console.log(opcitem);
+                $("span.itemId").text(opcitem);
+                $("span.write-feed").text('');
+
+            });
         }
     });
 

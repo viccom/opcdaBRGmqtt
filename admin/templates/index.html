@@ -15,28 +15,17 @@
               margin-bottom: 5px;
 
           }
-          .bs-2{
-              margin-left: 0px;
-              margin-top: 0px;
-              margin-right: 0px;
-              margin-bottom: 0px;
-
-          }
-          .bs-3{
-              margin-left: 16px;
-              margin-top: 16px;
-              margin-right: 5px;
-              margin-bottom: 5px;
-
-          }
           html { overflow-y: scroll; }
+
+            .modal.fade.in{
+                top:150px;
+            }
       </style>
     <link rel="stylesheet" href="static/css/bootstrap.min.css">
-    <!-- DataTables -->
-    <link rel="stylesheet" href="static/css/dataTables.bootstrap.min.css">
     <script src="static/js/jquery-2.2.4.min.js"></script>
     <script src="static/js/bootstrap.min.js" ></script>
     <!-- DataTables -->
+    <link rel="stylesheet" href="static/css/dataTables.bootstrap.min.css">
     <script src="static/js/jquery.dataTables.min.js"></script>
     <script src="static/js/dataTables.bootstrap.min.js"></script>
     <!-- paho.mqtt App -->
@@ -47,6 +36,7 @@
 </head>
 
 <body>
+
 <div>
 <!--左侧导航-->
     <div class="col-md-2" style="margin-left: 0px;margin-top: 16px;margin-right: 0px;margin-bottom: 0px;">
@@ -72,7 +62,7 @@
         <nav class="navbar navbar-default">
             <div class="container-fluid" >
               <div class="col-md-3" style="margin: 0px;padding: 0px">
-                  <h4>OPCTunnelStatus：<span class="label label-default OPCServerStatus">...</span></h4>
+                  <h4>OPCTunnelStatus：<span class="label label-default  OPCServerStatus">...</span></h4>
               </div>
               <div class="col-md-3" style="margin: 0px;padding: 0px">
                   <h4>Name：<span class="label label-default OPCServerName">...</span></h4>
@@ -95,7 +85,13 @@
           <!--服务配置start-->
           <div class="col-md-12 service_config" style="margin: 0px;padding: 0px">
               <div class="panel panel-default">
-                  <div class="panel-heading">OPC配置<span class="pull-right cleanTunnel" style="cursor:pointer">初始化</span></div>
+                  <div class="panel-heading">
+                      OPC配置
+                      <span class="pull-right cleanTunnel" style="cursor:pointer">初始化</span>
+                      <span class="pull-right pauseTunnel hide" style="cursor:pointer">暂停&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                      <span class="pull-right resumeTunnel hide" style="cursor:pointer">恢复&nbsp;&nbsp;&nbsp;&nbsp; </span>
+
+                  </div>
                   <div class="panel-body">
                       <!--左侧-->
                       <div class="col-md-6" style="margin: 0px;padding: 0px">
@@ -210,7 +206,7 @@
 
               <div class="panel panel-default">
                   <div class="panel-heading">数据浏览</div>
-                  <div class="panel-body" style="padding: 5px; min-height: 400px">
+                  <div class="panel-body" style="padding: 5px; min-height: 500px">
                       <table id="data_table" class="table table-bordered row-border" cellspacing="0" width="100%">
                           <thead>
                           <tr>
@@ -218,6 +214,7 @@
                               <th>数值</th>
                               <th>质量</th>
                               <th>时间</th>
+                              <th>操作</th>
                           </tr>
                           </thead>
                           <tbody>
@@ -228,7 +225,6 @@
 
           </div>
 
-
           <!--数据浏览end-->
 
           <!--日志浏览start-->
@@ -237,7 +233,7 @@
 
               <div class="panel panel-default">
                   <div class="panel-heading">日志浏览<span class="pull-right log-clean" style="cursor:pointer">清除</span></div>
-                  <div class="panel-body" style="margin: 0px; padding: 5px; min-height: 400px">
+                  <div class="panel-body" style="margin: 0px; padding: 5px; min-height: 500px">
                       <table id="log_table" class="table table-bordered row-border" cellspacing="0" width="100%">
                           <thead>
                           <tr>
@@ -254,7 +250,6 @@
 
           </div>
 
-
           <!--日志浏览end-->
       </div>
 
@@ -263,6 +258,37 @@
     <!--右侧视图-->
 
 </div>
+
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="writeItemModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					&times;
+				</button>
+				<h4 class="modal-title" id="writeItemModalLabel">
+					对<span class="itemId"></span>下置数据
+				</h4>
+			</div>
+			<div class="modal-body">
+				<div>数值：<input type="text" class="itemValue" placeholder=""></div>
+			</div>
+
+			<div class="modal-footer">
+                <div class="pull-left">下置反馈：<span class="write-feed"></span></div>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+                    关闭
+				</button>
+
+				<button type="button" class="btn btn-primary postValue">
+					提交
+				</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>
+<!-- 模态框（Modal） -->
 
 <!--<script type="text/javascript" src="static/userjs/opcview.js"></script>-->
 <!--<script type="text/javascript" src="static/userjs/mqtt-utility.js"></script>-->
@@ -287,5 +313,6 @@
         $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
     });
 </script>
+
 </body>
 </html>

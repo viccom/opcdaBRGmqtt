@@ -22,6 +22,7 @@ This utility can be used to test the Eclipse Paho MQTT Javascript client.
 // Create a client instance
 mqtt_client =null;
 mqttc_connected = false;
+var current_opcconfig = new Object();
 var mqtt_host = window.location.hostname;
 var mqtt_port = 3884;
 
@@ -251,6 +252,7 @@ function CharToHex(str) {
 function onConnect(context) {
   // Once a connection has been made, make a subscription and send a message.
   var connectionString = context.invocationContext.host + ":" + context.invocationContext.port + context.invocationContext.path;
+  console.log("Connection Success ", "URI: ", connectionString, ", ID: ", context.invocationContext.clientId);
   // logMessage("INFO", "Connection Success ", "[URI: ", connectionString, ", ID: ", context.invocationContext.clientId, "]");
   // var statusSpan = document.getElementById("connectionStatus");
   // statusSpan.innerHTML = "Connected to: " + connectionString + " as " + context.invocationContext.clientId;
@@ -259,15 +261,16 @@ function onConnect(context) {
 }
 
 
-function onConnected(reconnect=false, uri) {
+function onConnected(reconnect=true, uri) {
   // Once a connection has been made, make a subscription and send a message.
   //   logMessage("INFO", "Client Has now connected: [Reconnected: ", reconnect, ", URI: ", uri, "]");
+    console.log("Client Has now connected. Reconnected: ", reconnect, ", URI: ", uri);
     mqttc_connected = true;
     mqtt_client.subscribe(['v1/opcdabrg/api/RESULT','v1/opcdabrg/OPCDABRG_STATUS/#',  'v1/opcdabrg/OPCDABRG_DATAS/#', 'v1/opcdabrg/OPCDABRG_LOGS/#']);
-    // var message = new Paho.Message(JSON.stringify({"id":'getConfig/' + Date.parse(new Date()).toString()}));
-    // message.destinationName = 'v1/opcdabrg/api/getConfig';
-    // message.qos = 0;
-    // mqtt_client.send(message);
+    var message = new Paho.Message(JSON.stringify({"id":'getConfig/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString()}));
+    message.destinationName = 'v1/opcdabrg/api/getConfig';
+    message.qos = 0;
+    mqtt_client.send(message);
 
 }
 
@@ -298,6 +301,11 @@ function onMessageArrived(message) {
         // console.log(message.payloadString);
         var status_message = JSON.parse(message.payloadString);
         $(".OPCServerStatus").text(status_message[2]);
+        if(status_message[2]=="online"){
+            $(".OPCServerStatus").addClass('label-success')
+        }else{
+            $(".OPCServerStatus").removeClass('label-success')
+        }
     }
 
     if(arr_topic[2]==="OPCDABRG_LOGS"){
@@ -313,11 +321,20 @@ function onMessageArrived(message) {
     if(arr_topic[2]==="OPCDABRG_DATAS") {
         // console.log(message.payloadString);
         var data_message = JSON.parse(message.payloadString);
-        // opcdata = data_message;
+        var opcdata = new Array() ;
+        if(data_message.length>0){
+            $.each(data_message, function (i, v) {
+                // console.log(v);
+                var html_str = '<button type=\"button\" class=\"btn btn-default writeItem\" data-toggle=\"modal\" data-target=\"#writeItemModal\" data-id=\"' + v[0] + '\">下置</button>'
+                v.push(html_str);
+                opcdata.push(v)
+            });
+        }
+        //var opcdata = data_message;
         var currentPage = data_table.page();
         // console.log(currentPage);
         data_table.clear();
-        data_table.rows.add(data_message).draw(false);
+        data_table.rows.add(opcdata).draw(false);
         data_table.page(currentPage).draw(false);
 
     }
@@ -352,7 +369,7 @@ function onMessageArrived(message) {
         if(apiResult_message['id'].indexOf("getConfig") != -1 ){
             // console.log(apiResult_message);
             if(apiResult_message.result){
-
+                current_opcconfig = apiResult_message['data'];
                 $(".OPCServerName").text(apiResult_message['data']['opcname']);
                 $(".OPCServerHost").text(apiResult_message['data']['opchost']);
                 $("#ClientID").val(apiResult_message['data']['clientid']);
@@ -417,7 +434,7 @@ function onMessageArrived(message) {
                     $("select.opcserverslist").get(0).selectedIndex = 0;
                     var opcservername = $("select.opcserverslist").val();
                     var opchost = $("#OPCServerHost").val();
-                    var message = new Paho.Message(JSON.stringify({"id":'opctags_list/' + Date.parse(new Date()).toString(), "opcserver":opcservername,  "opchost":opchost}));
+                    var message = new Paho.Message(JSON.stringify({"id":'opctags_list/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString(), "opcserver":opcservername,  "opchost":opchost}));
                     message.destinationName = 'v1/opcdabrg/api/opctags_list';
                     message.qos = 0;
 
@@ -425,8 +442,11 @@ function onMessageArrived(message) {
                 }
 
             }
+        }
 
-
+        if(apiResult_message['id'].indexOf("deviceWrite") != -1 ){
+            $("span.write-feed").text(apiResult_message.id + ":" + apiResult_message.data);
+            // console.log(message.destinationName);
         }
         // $(".MQTTStatus").text(apiResult_message['data']['clientid']);
 
@@ -484,7 +504,7 @@ function connect() {
     keepAliveInterval: keepAlive,
     cleanSession: cleanSession,
     useSSL: tls,
-    reconnect: false,
+    reconnect: true,
     onSuccess: onConnect,
     onFailure: onFail
   };
@@ -524,6 +544,7 @@ function connect() {
 
 function disconnect() {
   // logMessage("INFO", "Disconnecting from Server.");
+    console.log( "Disconnecting from Server.");
   mqtt_client.disconnect();
   // var statusSpan = document.getElementById("connectionStatus");
   // statusSpan.innerHTML = "Connection - Disconnected.";

@@ -140,3 +140,12 @@ class OPCDABRG_Service(BaseService):
             return self.success("api", id, ret)
         else:
             return self.failure("api", id, "unknown")
+
+    @whitelist.__func__
+    def api_brgStatus(self, id, params):
+        # print("params:", params)
+        ret = self._manager.brg_status()
+        if ret:
+            return self.success("api", id, ret)
+        else:
+            return self.failure("api", id, "unknown")
