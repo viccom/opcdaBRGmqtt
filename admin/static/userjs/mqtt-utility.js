@@ -25,6 +25,7 @@ mqttc_connected = false;
 var current_opcconfig = new Object();
 var mqtt_host = window.location.hostname;
 var mqtt_port = 3884;
+var received_logs_num = 0;
 
 
 /**
@@ -59,6 +60,10 @@ function isEmpty(obj){
     }else{
         return false;
     }
+}
+
+function isInteger(obj) {
+    return obj%1 === 0
 }
 
 function makeid() {
@@ -311,12 +316,11 @@ function onMessageArrived(message) {
     if(arr_topic[2]==="OPCDABRG_LOGS"){
         console.log(message.payloadString);
         var log_message = JSON.parse(message.payloadString);
-        // console.log(typeof log_message);
+        // console.log(log_message);
         var local_datetime = new Date(parseInt(log_message[0]) * 1000).toLocaleString('chinese', { hour12: false });
         // console.log(bj_datetime)
         var new_log_message = [local_datetime, log_message[1], log_message[2]];
         log_table.row.add(new_log_message).draw();
-
     }
     if(arr_topic[2]==="OPCDABRG_DATAS") {
         // console.log(message.payloadString);
@@ -324,9 +328,12 @@ function onMessageArrived(message) {
         var opcdata = new Array() ;
         if(data_message.length>0){
             $.each(data_message, function (i, v) {
-                // console.log(v);
-                var html_str = '<button type=\"button\" class=\"btn btn-default writeItem\" data-toggle=\"modal\" data-target=\"#writeItemModal\" data-id=\"' + v[0] + '\">下置</button>'
-                v.push(html_str);
+                var html_str = '<button type=\"button\" class=\"btn btn-default writeItem\" data-toggle=\"modal\" data-target=\"#writeItemModal\" data-id=\"' + v[0] + '\">下置</button>';
+                // var local_datetime = new Date(parseInt(1585298533.4069197).toLocaleString('chinese', { hour12: false }));
+                var local_datetime = new Date(parseInt(v.slice(-1) * 1000)).toLocaleString('chinese', { hour12: false });
+                // console.log(local_datetime);
+                v.pop();
+                v.push(local_datetime, html_str);
                 opcdata.push(v)
             });
         }
@@ -348,7 +355,16 @@ function onMessageArrived(message) {
                 max_str = JSON.stringify(apiResult_message.data).slice(0,64) + ' ...';
             }
             var new_log_message = [local_datetime, 'api', apiResult_message['id'] + ":" + max_str];
-            log_table.row.add(new_log_message).draw();
+            if(apiResult_message['id'].indexOf("getConfig") != -1 ){
+                // console.log(received_logs_num/60, isInteger(received_logs_num/60), apiResult_message);
+                if(isInteger(received_logs_num/60)){
+                    log_table.row.add(new_log_message).draw();
+                }
+                received_logs_num = received_logs_num + 1;
+            }else{
+                log_table.row.add(new_log_message).draw();
+            }
+
         }else{
             var local_datetime = new Date(parseInt(new Date().getTime())).toLocaleString('chinese', { hour12: false });
             var max_str = JSON.stringify(apiResult_message.error);
@@ -368,6 +384,7 @@ function onMessageArrived(message) {
 
         if(apiResult_message['id'].indexOf("getConfig") != -1 ){
             // console.log(apiResult_message);
+
             if(apiResult_message.result){
                 current_opcconfig = apiResult_message['data'];
                 $(".OPCServerName").text(apiResult_message['data']['opcname']);
@@ -388,6 +405,8 @@ function onMessageArrived(message) {
                 });
                 $("#OPCItems").val(content_str);
             }
+
+
 
         }
 

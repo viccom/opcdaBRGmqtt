@@ -2,10 +2,19 @@
 # -*- coding: UTF-8 -*-
 
 import logging
-import opcdabrg.OpenOPC as OpenOPC
 import csv
-import random
+import re
+import opcdabrg.OpenOPC as OpenOPC
+from datetime import datetime
 
+def timestr2utc(time_str):
+	result = re.split(r'[+]', time_str)
+	return result[0]
+
+def timestr2timestamp(time_str):
+	result = re.split(r'[+]', time_str)
+	utc_date = datetime.strptime(result[0], "%Y-%m-%d %H:%M:%S.%f")
+	return utc_date.timestamp()
 
 def load_csv(path):
 	opcconfig = {}

@@ -6,7 +6,10 @@ import time
 import os
 import json
 import decimal
+import re
+from datetime import datetime
 from opcdabrg.opcda import *
+
 
 class DecimalEncoder(json.JSONEncoder):
     def default(self, o):
@@ -25,8 +28,22 @@ class OPCDATunnel(threading.Thread):
 		self._isReading = False
 		self._opctunnel_isrunning = False
 		self._count = 0
+		self._opcUtctimeFmt = False
 		self.mqtt_clientid = None
 		self._thread_stop = False
+
+	def timestr2utc(self, time_str):
+		result = re.split(r'[+]', time_str)
+		return result[0]
+
+	def timestr2timestamp(self, time_str):
+		result = re.split(r'[+]', time_str)
+		utc_date = datetime.strptime(result[0], "%Y-%m-%d %H:%M:%S.%f")
+		local_tm = datetime.fromtimestamp(0)
+		utc_tm = datetime.utcfromtimestamp(0)
+		offset = local_tm - utc_tm
+		utc_date = utc_date + offset
+		return utc_date.timestamp()
 
 	def get_opcConfig(self):
 		return self._opcConfig
@@ -75,11 +92,11 @@ class OPCDATunnel(threading.Thread):
 		if opcClient.isconnected:
 			try:
 				retw = opcClient.write(tags_values)
-				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'write', str(retw)]))
+				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'write', json.dumps(tags_values) + str(retw)]))
 				return retw
 			except Exception as ex:
 				logging.warning('Write Item err!err!err!')
-				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'write', str(ex)]))
+				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'write', json.dumps(tags_values) + str(ex)]))
 				logging.exception(ex)
 				opcClient.close()
 			finally:
@@ -161,7 +178,18 @@ class OPCDATunnel(threading.Thread):
 					self._isReading = True
 					datas = self._opcdaclient.read(self._opcConfig.get('opcitems'), sync=True)
 					# print('datas::', json.dumps(datas, cls=DecimalEncoder))
-					self._mqttpub.opcdabrg_datas(self.mqtt_clientid, json.dumps(datas, cls=DecimalEncoder))
+					if not self._opcUtctimeFmt:
+						newdatas = []
+						for data in datas:
+							if data:
+								ld = list(data)
+								newtimestr = self.timestr2timestamp(ld[-1])
+								del(ld[-1])
+								ld.append(newtimestr)
+								newdatas.append(ld)
+						self._mqttpub.opcdabrg_datas(self.mqtt_clientid, json.dumps(newdatas, cls=DecimalEncoder))
+					else:
+						self._mqttpub.opcdabrg_datas(self.mqtt_clientid, json.dumps(datas, cls=DecimalEncoder))
 				except Exception as ex:
 					logging.warning("read item's data err!err!err!")
 					logging.exception(ex)

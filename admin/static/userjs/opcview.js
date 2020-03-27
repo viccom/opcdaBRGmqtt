@@ -212,6 +212,15 @@ $('button.postValue').click(function(){
 
 });
 
+
+$("body").on("click", "button.writeItem", function() {
+    var opcitem =$(this).data('id');
+    // console.log(opcitem);
+    $("span.itemId").text(opcitem);
+    $("span.write-feed").text('');
+
+});
+
 $(function () {
     /**
      *	初始化数据表格
@@ -291,13 +300,6 @@ $(function () {
         ],
         "initComplete": function(settings, json) {
             console.log("data_table init over");
-            $("body").on("click", "button.writeItem", function() {
-                var opcitem =$(this).data('id');
-                // console.log(opcitem);
-                $("span.itemId").text(opcitem);
-                $("span.write-feed").text('');
-
-            });
         }
     });
 
