@@ -29,6 +29,7 @@ class OPCDATunnel(threading.Thread):
 		self._opctunnel_isrunning = False
 		self._count = 0
 		self._opcUtctimeFmt = False
+		self._rtdata = None
 		self.mqtt_clientid = None
 		self._thread_stop = False
 
@@ -188,6 +189,7 @@ class OPCDATunnel(threading.Thread):
 								ld.append(newtimestr)
 								newdatas.append(ld)
 						self._mqttpub.opcdabrg_datas(self.mqtt_clientid, json.dumps(newdatas, cls=DecimalEncoder))
+						self._rtdata = newdatas
 					else:
 						self._mqttpub.opcdabrg_datas(self.mqtt_clientid, json.dumps(datas, cls=DecimalEncoder))
 				except Exception as ex:
@@ -199,6 +201,13 @@ class OPCDATunnel(threading.Thread):
 					self._isReading = False
 					time.sleep(self._timeInterval)
 			else:
+				if self._rtdata:
+					uncertaindata = []
+					for data in self._rtdata:
+						newdata = [data[0], data[1], 'uncertain', data[3]]
+						uncertaindata.append(newdata)
+					self._mqttpub.opcdabrg_datas(self.mqtt_clientid, json.dumps(uncertaindata, cls=DecimalEncoder))
+					self._rtdata = None
 				time.sleep(0.1)
 				self._opcdaclient = OpenOPC.client()
 				try:

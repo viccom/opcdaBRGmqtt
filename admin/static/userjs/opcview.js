@@ -14,6 +14,8 @@ var mqtt_status_ret= setInterval(function(){
     }else{
         $(".MQTTStatus").text("重连中");
         $(".MQTTStatus").removeClass('label-success');
+        $(".OPCServerStatus").text('unknown');
+        $(".OPCServerStatus").removeClass('label-success');
         // $("select.opcserverslist").empty();
         // $("select.opcserverslist").append("<option value='点击上方查询按钮'></option>");
         // $("#NewOPCItems").val('');
