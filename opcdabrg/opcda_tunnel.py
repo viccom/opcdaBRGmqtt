@@ -38,11 +38,14 @@ class OPCDATunnel(threading.Thread):
 		return result[0]
 
 	def timestr2timestamp(self, time_str):
-		result = re.split(r'[+]', time_str)
-		utc_date = datetime.strptime(result[0], "%Y-%m-%d %H:%M:%S.%f")
 		local_tm = datetime.fromtimestamp(0)
 		utc_tm = datetime.utcfromtimestamp(0)
 		offset = local_tm - utc_tm
+		result = re.split(r'[+]', time_str)
+		if result[0].find('.') != -1:
+			utc_date = datetime.strptime(result[0], "%Y-%m-%d %H:%M:%S.%f")
+		else:
+			utc_date = datetime.strptime(result[0], "%Y-%m-%d %H:%M:%S")
 		utc_date = utc_date + offset
 		return utc_date.timestamp()
 
