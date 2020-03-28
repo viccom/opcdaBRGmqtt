@@ -25,6 +25,7 @@ mqttc_connected = false;
 var current_opcconfig = new Object();
 var mqtt_host = window.location.hostname;
 var mqtt_port = 3884;
+var clientId = "webclient-"+makeid();
 var received_logs_num = 0;
 
 
@@ -322,6 +323,15 @@ function onMessageArrived(message) {
         var new_log_message = [local_datetime, log_message[1], log_message[2]];
         log_table.row.add(new_log_message).draw();
     }
+    if(arr_topic[2]==="OPCDABRG_COMM"){
+        console.log(message.payloadString);
+        var log_message = JSON.parse(message.payloadString);
+        // console.log(log_message);
+        var local_datetime = new Date(parseInt(log_message[0]) * 1000).toLocaleString('chinese', { hour12: false });
+        // console.log(bj_datetime)
+        var new_comm_message = [local_datetime, log_message[1], log_message[2]];
+        comm_table.row.add(new_comm_message).draw();
+    }
     if(arr_topic[2]==="OPCDABRG_DATAS") {
         // console.log(message.payloadString);
         var data_message = JSON.parse(message.payloadString);
@@ -495,7 +505,6 @@ function connectionToggle() {
 function connect() {
   var hostname = mqtt_host;
   var port = mqtt_port;
-  var clientId = "webclient-"+makeid();
   $("#newClientID").val(clientId);
   var path = "/mqtt";
   var user = '';

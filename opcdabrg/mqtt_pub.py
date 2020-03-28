@@ -20,3 +20,7 @@ class MQTTStreamPub(MQTTStreamPubBase):
     def opcdabrg_log_pub(self, key, info):
         topic = "OPCDABRG_LOGS/{0}".format(key)
         return self.publish(topic=topic, payload=info, qos=1, retain=True)
+
+    def opcdabrg_comm_pub(self, key, info):
+        topic = "OPCDABRG_COMM/{0}".format(key)
+        return self.publish(topic=topic, payload=info, qos=1, retain=True)

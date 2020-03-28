@@ -47,6 +47,7 @@
                   <button type="button" class="list-group-item active nav_service_config" data-id="service_config">参数配置</button>
                   <button type="button" class="list-group-item nav_data_view"  data-id="data_view">数据浏览</button>
                   <button type="button" class="list-group-item nav_log_view"  data-id="log_view">日志查看</button>
+                  <button type="button" class="list-group-item nav_comm_view"  data-id="comm_view">通讯查看</button>
               </div>
 
           </div>
@@ -251,6 +252,37 @@
           </div>
 
           <!--日志浏览end-->
+
+          <!--报文浏览start-->
+          <div class="col-md-12 comm_view hide" style="padding: 0px">
+
+
+              <div class="panel panel-default">
+                  <div class="panel-heading">通讯查看
+                      <span class="pull-right comm-clean" style="cursor:pointer">&nbsp;&nbsp;&nbsp;&nbsp;清除</span>
+                      <span class="pull-right enable-comm-view" style="cursor:pointer" data-enablecomm = '0'>开启</span>
+                  </div>
+                  <div class="panel-body" style="margin: 0px; padding: 5px; min-height: 500px">
+                      <table id="comm_table" class="table table-bordered row-border" cellspacing="0" width="100%">
+                          <thead>
+                          <tr>
+                              <th>时间</th>
+                              <th>类型</th>
+                              <th>内容</th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+
+          </div>
+
+          <!--报文浏览end-->
+
+
+
       </div>
 
 

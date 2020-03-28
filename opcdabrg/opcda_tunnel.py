@@ -96,11 +96,11 @@ class OPCDATunnel(threading.Thread):
 		if opcClient.isconnected:
 			try:
 				retw = opcClient.write(tags_values)
-				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'write', json.dumps(tags_values) + str(retw)]))
+				self._mqttpub.opcdabrg_comm_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'write', self._opcConfig.get('opcname') + '/' + json.dumps(tags_values) + '/' + str(retw)]))
 				return retw
 			except Exception as ex:
 				logging.warning('Write Item err!err!err!')
-				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'write', json.dumps(tags_values) + str(ex)]))
+				self._mqttpub.opcdabrg_comm_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'write', self._opcConfig.get('opcname') + '/' + json.dumps(tags_values) + '/' + str(ex)]))
 				logging.exception(ex)
 				opcClient.close()
 			finally:
@@ -182,6 +182,7 @@ class OPCDATunnel(threading.Thread):
 					self._isReading = True
 					datas = self._opcdaclient.read(self._opcConfig.get('opcitems'), sync=True)
 					# print('datas::', json.dumps(datas, cls=DecimalEncoder))
+					self._mqttpub.opcdabrg_comm_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'read', self._opcConfig.get('opcname') + '/Success']))
 					if not self._opcUtctimeFmt:
 						newdatas = []
 						for data in datas:
@@ -198,7 +199,7 @@ class OPCDATunnel(threading.Thread):
 				except Exception as ex:
 					logging.warning("read item's data err!err!err!")
 					logging.exception(ex)
-					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'read', str(ex)]))
+					self._mqttpub.opcdabrg_comm_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'read', self._opcConfig.get('opcname') + '/' + str(ex)]))
 					self._opcdaclient.close()
 				finally:
 					self._isReading = False
@@ -216,11 +217,11 @@ class OPCDATunnel(threading.Thread):
 				try:
 					logging.info(str(self._count) + ": reconnect " + self._opcConfig.get('opcname') + self._opcConfig.get('opchost'))
 					self._opcdaclient.connect(self._opcConfig.get('opcname'), self._opcConfig.get('opchost') or 'localhost')
-					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', 'connect ' + self._opcConfig.get('opcname') + ' successful']) )
+					self._mqttpub.opcdabrg_comm_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', 'connect ' + self._opcConfig.get('opcname') + ' successful']) )
 				except Exception as ex:
 					logging.warning('connect OPCDA Server err!err!err!')
 					logging.exception(ex)
-					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', str(ex)]))
+					self._mqttpub.opcdabrg_comm_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', str(ex)]))
 					time.sleep(1 + 5 * self._count)
 					self._count = self._count + 1
 				finally:

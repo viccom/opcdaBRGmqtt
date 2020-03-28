@@ -167,6 +167,27 @@ $('span.log-clean').click(function(){
     log_table.clear().draw();
 });
 
+$('span.comm-clean').click(function(){
+    comm_table.clear().draw();
+});
+
+$('span.enable-comm-view').click(function(){
+    if(mqttc_connected) {
+        if($(this).data('enablecomm')=='0'){
+            console.log('1')
+            mqtt_client.subscribe('v1/opcdabrg/OPCDABRG_COMM/#');
+            $(this).data('enablecomm','1');
+            $(this).text('停止');
+        }else{
+            console.log('0')
+            mqtt_client.unsubscribe('v1/opcdabrg/OPCDABRG_COMM/#');
+            $(this).data('enablecomm','0');
+            $(this).text('开启');
+        }
+
+    }
+});
+
 $('span.cleanTunnel').click(function(){
     if(mqttc_connected) {
         var message = new Paho.Message(JSON.stringify({"id": 'tunnelClean/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString()}));
@@ -369,6 +390,72 @@ $(function () {
         ],
         "initComplete": function(settings, json) {
             console.log("log_table init over")
+        }
+    });
+
+    /**
+     *	初始化通讯表格
+     */
+    comm_table = $('#comm_table').DataTable({
+        // "dom": '',
+        "filter": true,
+        "info": false,
+        // "scrollY":        "50px",
+        // "scrollCollapse": true,
+        "paging":         false,
+        "processing": true,
+        "bStateSave": false,
+        "order": [[ 0, "asc" ]],
+        "language": {
+            "sProcessing": "处理中...",
+            "sLengthMenu": "显示 _MENU_ 项结果",
+            "sZeroRecords": "没有匹配结果",
+            "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+            "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+            "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+            "sInfoPostFix": "",
+            "sSearch": "搜索:",
+            "sUrl": "",
+            "sEmptyTable": "消息为空",
+            "sLoadingRecords": "载入中...",
+            "sInfoThousands": ",",
+            "oPaginate": {
+                "sFirst": "首页",
+                "sPrevious": "上页",
+                "sNext": "下页",
+                "sLast": "末页"
+            },
+            "oAria": {
+                "sSortAscending": ": 以升序排列此列",
+                "sSortDescending": ": 以降序排列此列"
+            }
+        },
+        columnDefs: [
+            {
+                //   指定第第1列
+                targets:  0,
+                "width": '15%',
+                searchable: false,
+                orderable: false
+
+            },
+            {
+                //   指定第第2列
+                targets:  1,
+                "width": '10%',
+                searchable: true,
+                orderable: false
+            },
+            {
+                //   指定第第4列
+                targets:  2,
+                "width": '75%',
+                searchable: true,
+                orderable: false
+            }
+        ],
+        "initComplete": function(settings, json) {
+            console.log("comm_table init over")
         }
     });
 

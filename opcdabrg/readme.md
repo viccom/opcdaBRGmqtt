@@ -17,3 +17,4 @@ sub:
 v1/opcdabrg/OPCDABRG_STATUS/#
 v1/opcdabrg/OPCDABRG_DATAS/#
 v1/opcdabrg/OPCDABRG_LOGS/#
+v1/opcdabrg/OPCDABRG_COMM/#
