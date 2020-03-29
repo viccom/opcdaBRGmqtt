@@ -150,10 +150,12 @@ class OPCDATunnel(threading.Thread):
 			try:
 				self._opcdaclient.connect(self._opcConfig.get('opcname'), self._opcConfig.get('opchost') or 'localhost')
 				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', 'connect ' + self._opcConfig.get('opcname') + ' successful']))
+				self._mqttpub.opcdabrg_comm_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', 'connect ' + self._opcConfig.get('opcname') + ' successful']))
 			except Exception as ex:
 				logging.warning('connect OPCDA Server err!err!err!')
 				logging.exception(ex)
-				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', str(ex)]))
+				self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', self._opcConfig.get('opcname') + str(ex)]))
+				self._mqttpub.opcdabrg_comm_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', self._opcConfig.get('opcname') + str(ex)]))
 			finally:
 				if self._opcConfig.get('timeInterval'):
 					self._timeInterval = self._opcConfig.get('timeInterval')
@@ -217,11 +219,13 @@ class OPCDATunnel(threading.Thread):
 				try:
 					logging.info(str(self._count) + ": reconnect " + self._opcConfig.get('opcname') + self._opcConfig.get('opchost'))
 					self._opcdaclient.connect(self._opcConfig.get('opcname'), self._opcConfig.get('opchost') or 'localhost')
+					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', 'connect ' + self._opcConfig.get('opcname') + ' successful']) )
 					self._mqttpub.opcdabrg_comm_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', 'connect ' + self._opcConfig.get('opcname') + ' successful']) )
 				except Exception as ex:
 					logging.warning('connect OPCDA Server err!err!err!')
 					logging.exception(ex)
-					self._mqttpub.opcdabrg_comm_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', str(ex)]))
+					self._mqttpub.opcdabrg_log_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', self._opcConfig.get('opcname') + str(ex)]))
+					self._mqttpub.opcdabrg_comm_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', self._opcConfig.get('opcname') + str(ex)]))
 					time.sleep(1 + 5 * self._count)
 					self._count = self._count + 1
 				finally:
