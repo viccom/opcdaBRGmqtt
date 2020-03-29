@@ -198,6 +198,10 @@ $('span.cleanTunnel').click(function(){
 });
 
 
+$('span.getlogfile').click(function(){
+    window.location.href='/getlogfile?v=' + Date.parse(new Date()).toString();
+});
+
 $('button.postValue').click(function(){
     var itemid = $("span.itemId").text();
     var itemvalue = $("input.itemValue").val();
