@@ -201,6 +201,10 @@ $('span.cleanTunnel').click(function(){
 $('button.postValue').click(function(){
     var itemid = $("span.itemId").text();
     var itemvalue = $("input.itemValue").val();
+    if(itemvalue==''){
+        $("span.write-feed").text('数值不能为空！');
+        return false;
+    }
     if(!$.isEmptyObject(current_opcconfig)){
         var opctags = current_opcconfig['opctags'];
         // console.log(current_opcconfig);
