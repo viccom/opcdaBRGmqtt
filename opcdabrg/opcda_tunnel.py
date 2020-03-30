@@ -146,6 +146,8 @@ class OPCDATunnel(threading.Thread):
 			if csvdatas:
 				self.start_opctunnel(csvdatas)
 				logging.info('start opctunnel with opcconfig.csv')
+			else:
+				logging.info('start opctunnel without opcconfig')
 		if self._opcConfig:
 			try:
 				self._opcdaclient.connect(self._opcConfig.get('opcname'), self._opcConfig.get('opchost') or 'localhost')

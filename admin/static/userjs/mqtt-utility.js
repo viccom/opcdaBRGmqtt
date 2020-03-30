@@ -507,8 +507,8 @@ function connect() {
   var port = mqtt_port;
   $("#newClientID").val(clientId);
   var path = "/mqtt";
-  var user = '';
-  var pass = '';
+  var user = 'admin';
+  var pass = 'opcdabrg';
   // var pass = "Pa88word";
   var keepAlive = 60;
   var timeout = 3;

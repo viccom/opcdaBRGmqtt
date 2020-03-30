@@ -30,11 +30,10 @@ broker_config = {
     },
     "timeout-disconnect-delay": 2,
     "auth": {
-        "allow-anonymous": True
+        "plugins": ["auth_anonymous"],
+        "allow-anonymous": False,
+        "password-file": "hbmqtt_broker/userpwd"
     },
-    "plugins": [
-        "auth_anonymous"
-    ],
     "topic-check": {
         "enabled": True,
         "plugins": ["topic_taboo"]

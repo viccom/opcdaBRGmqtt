@@ -41,6 +41,7 @@ class MQTTStreamPubBase(threading.Thread):
         while not self._close_connection:
             try:
                 mqttc = mqtt.Client(userdata=self, client_id=self.clientid)
+                mqttc.username_pw_set(username='admin', password='opcdabrg')
                 self.mqttc = mqttc
 
                 mqttc.on_connect = on_connect
