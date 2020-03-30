@@ -7,7 +7,7 @@ rmdir /S /Q dist
 
 ::G:\mycode\opcdaBRGmqtt\venv\Scripts\pyinstaller.exe -F --hiddenimport opcdabrg.app --uac-admin main.py
 
-%cd%\venv\Scripts\pyinstaller.exe -F %cd%\opcdabrgconfig.spec
+%cd%\venv\Scripts\pyinstaller.exe -i %cd%\tubiao.ico -F %cd%\opcdabrgconfig.spec
 
 move dist\main.exe opcdaBRGmqtt.exe
 
