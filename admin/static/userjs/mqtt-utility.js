@@ -262,12 +262,12 @@ function onConnect(context) {
   // logMessage("INFO", "Connection Success ", "[URI: ", connectionString, ", ID: ", context.invocationContext.clientId, "]");
   // var statusSpan = document.getElementById("connectionStatus");
   // statusSpan.innerHTML = "Connected to: " + connectionString + " as " + context.invocationContext.clientId;
-  mqttc_connected = true;
+  mqttc_connected = false;
 
 }
 
 
-function onConnected(reconnect=true, uri) {
+function onConnected(reconnect=false, uri) {
   // Once a connection has been made, make a subscription and send a message.
   //   logMessage("INFO", "Client Has now connected: [Reconnected: ", reconnect, ", URI: ", uri, "]");
     console.log("Client Has now connected. Reconnected: ", reconnect, ", URI: ", uri);
@@ -513,7 +513,7 @@ function connect() {
   var keepAlive = 60;
   var timeout = 3;
   var tls = false;
-  var automaticReconnect = true;
+  var autoReconnect = false;
   var cleanSession = true;
     var lastWillTopic = null;
     var lastWillQos = 0;
@@ -540,7 +540,7 @@ function connect() {
     keepAliveInterval: keepAlive,
     cleanSession: cleanSession,
     useSSL: tls,
-    reconnect: true,
+    reconnect: autoReconnect,
     onSuccess: onConnect,
     onFailure: onFail
   };

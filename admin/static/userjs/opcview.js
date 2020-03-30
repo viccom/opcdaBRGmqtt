@@ -10,19 +10,39 @@ setTimeout(function () {
 var mqtt_status_ret= setInterval(function(){
     if(mqttc_connected){
         $(".MQTTStatus").text("已连接");
+        $(".MQTTStatus").removeClass("hide");
         $(".MQTTStatus").addClass('label-success');
+        $("input[name='mqtt-connect-port']").addClass('hide');
+        $("button.mqtt-connect-btn").text("断开");
+        $("button.mqtt-connect-btn").data("id","1");
     }else{
         $(".MQTTStatus").text("重连中");
         $(".MQTTStatus").removeClass('label-success');
+        $(".MQTTStatus").addClass("hide");
+        $("input[name='mqtt-connect-port']").removeClass('hide');
         $(".OPCServerStatus").text('unknown');
         $(".OPCServerStatus").removeClass('label-success');
+        $("button.mqtt-connect-btn").text("连接");
+        $("button.mqtt-connect-btn").data("id","0");
         // $("select.opcserverslist").empty();
         // $("select.opcserverslist").append("<option value='点击上方查询按钮'></option>");
         // $("#NewOPCItems").val('');
-        connect();
     }
 
 },2000);
+
+
+$('button.mqtt-connect-btn').click(function(){
+    var connetid = $("button.mqtt-connect-btn").data("id");
+    if(connetid=="0"){
+        if(!mqttc_connected){
+            connect();
+        }
+    }else{
+        disconnect();
+    }
+
+});
 
 /**
  *	周期获取opcdaBRG状态

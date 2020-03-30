@@ -72,8 +72,16 @@
               <div class="col-md-3" style="margin: 0px;padding: 0px">
                   <h4>Host：<span class="label label-default OPCServerHost">...</span></h4>
               </div>
-              <div class="col-md-3" style="margin: 0px;padding: 0px">
-                  <h4>MQTTStatus：<span class="label label-default MQTTStatus">...</span></h4>
+              <div class="col-md-3 " style="margin: 0px;padding: 0px">
+                  <h4 class="form-inline">MQTTStatus：
+                      <span class="label label-default MQTTStatus">...</span>
+                      <input type="text" class="input-sm hide" value="3883" name="mqtt-connect-port" size="1">
+                      <button type="button" class="btn btn-sm btn-primary mqtt-connect-btn">
+                        ...
+                      </button>
+
+                  </h4>
+
 
               </div>
             </div><!-- /.container-fluid -->
