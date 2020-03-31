@@ -126,7 +126,7 @@ class OPCDATunnel(threading.Thread):
 		config = ConfigParser()
 		if os.access(os.getcwd() + '\\config.ini', os.F_OK):
 			config.read('config.ini')
-			if config.get('system', 'time'):
+			if config.get('system', 'timezone'):
 				timezone = config.getint('system', 'timezone')
 		return timezone_map.get(str(timezone))
 

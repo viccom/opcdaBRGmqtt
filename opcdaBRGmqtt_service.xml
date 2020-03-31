@@ -1,0 +1,14 @@
+
+<configuration>
+  <!-- ID of the service. It should be unique accross the Windows system-->
+  <id>opcdaBRGmqtt_service</id>
+  <!-- Display name of the service -->
+  <name>opcdaBRGmqtt_service</name>
+  <!-- Service description -->
+  <description>opcdaBRGmqtt_service</description>
+  <!-- Path to the executable, which should be started -->
+  <executable>%BASE%\opcdaBRGmqtt.exe</executable>
+  <workingdirectory>%BASE%\</workingdirectory>
+  <logpath>%BASE%\log/</logpath>
+  <logmode>none</logmode>
+</configuration>

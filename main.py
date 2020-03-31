@@ -45,6 +45,8 @@ if __name__ == '__main__':
         config.set("log", 'level', 'INFO')
         config.set("log", 'filenum', '9')
         config.set("log", 'maxsize', '4')
+        config.add_section("system")
+        config.set("system", 'timezone', '0')
         config.add_section("autorun")
         config.set("autorun", 'webadmin', '0')
         config.write(open('config.ini', 'w'))
