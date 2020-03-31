@@ -190,9 +190,9 @@ class OPCDATunnel(threading.Thread):
 								newtimestamp = parse(ld[-1].replace('+00:00', self._timezone)).timestamp()
 								newvalue = ld[1]
 								if type(newvalue) == memoryview:
-									newvalue = str(newvalue.tobytes(), encoding='utf-8')
+									newvalue = str(newvalue.tobytes(), encoding='gbk', errors='ignore')
 								if type(newvalue) == bytes:
-									newvalue = str(newvalue, encoding='utf-8')
+									newvalue = str(newvalue, encoding='gbk', errors='ignore')
 								newdatal = [ld[0], newvalue, ld[2], newtimestamp]
 								newdatas.append(newdatal)
 						try:
