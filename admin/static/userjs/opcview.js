@@ -67,6 +67,39 @@ $('span.reset').click(function(){
 
 });
 
+$('button.timezone-modify').click(function(){
+    $('button.timezone-group1').removeClass('hide');
+    $('button.timezone-group2').addClass('hide');
+    $("input.timezone").prop('disabled', false);
+});
+
+$('button.timezone-cancel').click(function(){
+    $('button.timezone-group2').removeClass('hide');
+    $('button.timezone-group1').addClass('hide');
+    $("input.timezone").prop('disabled', true);
+});
+
+$('button.timezone-save').click(function(){
+    var timezone_value = $("input.timezone").val();
+    if(isEmpty(timezone_value)){
+        $("span.api-feed").text("值不能为空");
+        return false;
+    }
+    if(!isInteger(timezone_value)){
+        $("span.api-feed").text("数值必须为整数且界于[-12,+14]。");
+        return false;
+    }
+    if(mqttc_connected) {
+        var message = new Paho.Message(JSON.stringify({"id": 'setsysconfig/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString(), "timezone_value": timezone_value}));
+        message.destinationName = 'v1/opcdabrg/api/setsysconfig';
+        message.qos = 0;
+        mqtt_client.send(message);
+    }
+    $('button.timezone-group2').removeClass('hide');
+    $('button.timezone-group1').addClass('hide');
+    $("input.timezone").prop('disabled', true);
+});
+
 $('span.opc-query').click(function(){
     if(mqttc_connected) {
         var message = new Paho.Message(JSON.stringify({"id": 'opcservers_list/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString()}));

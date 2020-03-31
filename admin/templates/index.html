@@ -94,6 +94,20 @@
       <div style="margin: 0px;padding: 0px">
           <!--服务配置start-->
           <div class="col-md-12 service_config" style="margin: 0px;padding: 0px">
+              <div class="panel panel-default"  style="margin-bottom: 5px">
+                  <div class="panel-heading">
+                      系统配置
+                  </div>
+                  <div class="panel-body">
+                    <div>时间偏差：<input type="number" style="width: 3em" class="timezone" placeholder="" size="2" disabled oninput="if(value>14)value=14;if(value<-12)value=-12" />
+                        <button type="button" class="btn btn-sm btn-default hide timezone-group1 timezone-save">保存</button>
+                        <button type="button" class="btn btn-sm btn-default hide timezone-group1 timezone-cancel">取消</button>
+                        <button type="button" class="btn btn-sm btn-default timezone-group2 timezone-modify">修改</button>
+                    </div>
+
+                  </div>
+              </div>
+
               <div class="panel panel-default">
                   <div class="panel-heading">
                       OPC配置

@@ -277,7 +277,10 @@ function onConnected(reconnect=false, uri) {
     message.destinationName = 'v1/opcdabrg/api/getConfig';
     message.qos = 0;
     mqtt_client.send(message);
-
+    var message = new Paho.Message(JSON.stringify({"id":'getsysconfig/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString()}));
+    message.destinationName = 'v1/opcdabrg/api/getsysconfig';
+    message.qos = 0;
+    mqtt_client.send(message);
 }
 
 function onFail(context) {
@@ -443,7 +446,23 @@ function onMessageArrived(message) {
             }
 
         }
+        if(apiResult_message['id'].indexOf("getsysconfig") != -1 ){
+            if(apiResult_message.result) {
+                $("input.timezone").val(apiResult_message['data']);
+            }
+        }
+        if(apiResult_message['id'].indexOf("setsysconfig") != -1 ){
+            if(apiResult_message.result) {
+                $("input.timezone").val(apiResult_message['data']);
 
+                if(mqttc_connected) {
+                    var message = new Paho.Message(JSON.stringify({"id": 'restartbrg/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString()}));
+                    message.destinationName = 'v1/opcdabrg/api/restartbrg';
+                    message.qos = 0;
+                    mqtt_client.send(message);
+                }
+            }
+        }
         if(apiResult_message['id'].indexOf("tunnelStatus") != -1 ){
             if(apiResult_message.result) {
                 $(".OPCServerStatus").text(apiResult_message['data']);

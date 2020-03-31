@@ -244,6 +244,7 @@ class OPCDATunnel(threading.Thread):
 				finally:
 					if self._opcConfig.get('timeInterval'):
 						self._timeInterval = self._opcConfig.get('timeInterval')
+		logging.warning("Close opcdatunnel!")
 
 	def stop(self):
 		self._thread_stop = True

@@ -149,3 +149,49 @@ class OPCDABRG_Service(BaseService):
             return self.success("api", id, ret)
         else:
             return self.failure("api", id, "unknown")
+
+    @whitelist.__func__
+    def api_startbrg(self, id, params):
+        # print("params:", params)
+        ret = self._manager.on_start_opcdatunnel()
+        if ret:
+            return self.success("api", id, ret)
+        else:
+            return self.failure("api", id, "unknown")
+
+    @whitelist.__func__
+    def api_stopbrg(self, id, params):
+        # print("params:", params)
+        ret = self._manager.on_stop_opcdatunnel()
+        if ret:
+            return self.success("api", id, ret)
+        else:
+            return self.failure("api", id, "unknown")
+
+    @whitelist.__func__
+    def api_restartbrg(self, id, params):
+        # print("params:", params)
+        ret = self._manager.on_restart_opcdatunnel()
+        if ret:
+            return self.success("api", id, ret)
+        else:
+            return self.failure("api", id, "unknown")
+
+    @whitelist.__func__
+    def api_getsysconfig(self, id, params):
+        # print("params:", params)
+        ret = self._manager.on_getsysconfig()
+        if ret:
+            return self.success("api", id, ret)
+        else:
+            return self.failure("api", id, "unknown")
+
+    @whitelist.__func__
+    def api_setsysconfig(self, id, params):
+        # print("params:", params)
+        timezone_value = params.get('timezone_value')
+        ret = self._manager.on_setsysconfig(timezone_value)
+        if ret:
+            return self.success("api", id, ret)
+        else:
+            return self.failure("api", id, "unknown")

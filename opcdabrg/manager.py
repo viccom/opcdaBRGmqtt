@@ -11,7 +11,7 @@ import hashlib
 from time import sleep
 from opcdabrg.opcda import *
 from opcdabrg.opcda_tunnel import OPCDATunnel
-
+from configparser import ConfigParser
 
 def GetFileMd5(filename):
     if not os.path.isfile(filename):
@@ -81,6 +81,41 @@ class OPCDABRGManager(threading.Thread):
 
     def on_event(self, event, ul_value):
         return True
+
+    def on_start_opcdatunnel(self):
+        self._opcdatunnel = OPCDATunnel(self._mqtt_stream_pub)
+        self._opcdatunnel.start()
+        return True
+
+    def on_stop_opcdatunnel(self):
+        self._opcdatunnel.stop()
+        return True
+
+    def on_restart_opcdatunnel(self):
+        self._opcdatunnel.stop()
+        sleep(2)
+        self._opcdatunnel = OPCDATunnel(self._mqtt_stream_pub)
+        self._opcdatunnel.start()
+        return True
+
+    def on_getsysconfig(self):
+        timezone_value = None
+        config = ConfigParser()
+        if os.access(os.getcwd() + '\\config.ini', os.F_OK):
+            config.read('config.ini')
+            if config.get('system', 'timezone'):
+                timezone_value = str(config.getint('system', 'timezone'))
+        return timezone_value
+
+    def on_setsysconfig(self, value):
+        config = ConfigParser()
+        if os.access(os.getcwd() + '\\config.ini', os.F_OK):
+            config.read('config.ini')
+            config.set("system", 'timezone', value)
+            config.write(open('config.ini', 'w'))
+            return str(config.getint('system', 'timezone'))
+        else:
+            return None
 
     def start(self):
         self._opcdatunnel = OPCDATunnel(self._mqtt_stream_pub)
