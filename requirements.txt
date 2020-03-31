@@ -9,3 +9,4 @@ wmi
 requests
 ping3
 Pyro4
+python-dateutil

@@ -7,9 +7,9 @@ import os
 import json
 import decimal
 import re
-from datetime import datetime
 from opcdabrg.opcda import *
-
+from dateutil.parser import parse
+from configparser import ConfigParser
 
 class DecimalEncoder(json.JSONEncoder):
     def default(self, o):
@@ -25,6 +25,7 @@ class OPCDATunnel(threading.Thread):
 		self._opcConfig = {}
 		self._opcdaclient = None
 		self._timeInterval = 1
+		self._timezone = '+00:00'
 		self._isReading = False
 		self._opctunnel_isrunning = False
 		self._count = 0
@@ -32,22 +33,6 @@ class OPCDATunnel(threading.Thread):
 		self._rtdata = None
 		self.mqtt_clientid = None
 		self._thread_stop = False
-
-	def timestr2utc(self, time_str):
-		result = re.split(r'[+]', time_str)
-		return result[0]
-
-	def timestr2timestamp(self, time_str):
-		local_tm = datetime.fromtimestamp(0)
-		utc_tm = datetime.utcfromtimestamp(0)
-		offset = local_tm - utc_tm
-		result = re.split(r'[+]', time_str)
-		if result[0].find('.') != -1:
-			utc_date = datetime.strptime(result[0], "%Y-%m-%d %H:%M:%S.%f")
-		else:
-			utc_date = datetime.strptime(result[0], "%Y-%m-%d %H:%M:%S")
-		utc_date = utc_date + offset
-		return utc_date.timestamp()
 
 	def get_opcConfig(self):
 		return self._opcConfig
@@ -137,8 +122,18 @@ class OPCDATunnel(threading.Thread):
 	def brg_isrunning(self):
 		return {"brg_status": self._opctunnel_isrunning}
 
+	def get_timezone(self):
+		config = ConfigParser()
+		if os.access(os.getcwd() + '\\config.ini', os.F_OK):
+			config.read('config.ini')
+			if config.get('system', 'time'):
+				timezone = config.getint('system', 'timezone')
+		return timezone_map.get(str(timezone))
+
 	def run(self):
 		self._opcdaclient = OpenOPC.client()
+		if self.get_timezone():
+			self._timezone = self.get_timezone()
 		if not os.path.exists("userdata"):
 			os.mkdir("userdata")
 		if os.path.exists("userdata/opcconfig.csv"):
@@ -192,14 +187,15 @@ class OPCDATunnel(threading.Thread):
 						for data in datas:
 							if data:
 								ld = list(data)
-								newtimestr = self.timestr2timestamp(ld[-1])
+								newtimestamp = parse(ld[-1].replace('+00:00', self._timezone)).timestamp()
 								del(ld[-1])
-								ld.append(newtimestr)
+								ld.append(newtimestamp)
 								newdatas.append(ld)
 						self._mqttpub.opcdabrg_datas(self.mqtt_clientid, json.dumps(newdatas, cls=DecimalEncoder))
 						self._rtdata = newdatas
 					else:
 						self._mqttpub.opcdabrg_datas(self.mqtt_clientid, json.dumps(datas, cls=DecimalEncoder))
+						self._rtdata = datas
 				except Exception as ex:
 					logging.warning("read item's data err!err!err!")
 					logging.exception(ex)

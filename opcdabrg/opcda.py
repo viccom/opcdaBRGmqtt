@@ -7,13 +7,27 @@ import re
 import opcdabrg.OpenOPC as OpenOPC
 from datetime import datetime
 
+timezone_map = {
+	'-12': "-12:00", '-11': "-11:00", '-10': "-10:00", '-9': "-09:00", '-8': "-08:00", '-7': "-07:00", '-6': "-06:00",
+	'-5': "-05:00", '-4': "-04:00", '-3': "-03:00", '-2': "-02:00", '-1': "-01:00", '0': "+00:00",
+	'14': "+14:00", '13': "+13:00", '12': "+12:00", '11': "+11:00", '10': "+10:00", '9': "+09:00", '8': "+08:00",
+	'7': "+07:00", '6': "+06:00", '5': "+05:00", '4': "+04:00", '3': "+03:00", '2': "+02:00", '1': "+01:00"
+}
+
 def timestr2utc(time_str):
 	result = re.split(r'[+]', time_str)
 	return result[0]
 
 def timestr2timestamp(time_str):
+	local_tm = datetime.fromtimestamp(0)
+	utc_tm = datetime.utcfromtimestamp(0)
+	offset = local_tm - utc_tm
 	result = re.split(r'[+]', time_str)
-	utc_date = datetime.strptime(result[0], "%Y-%m-%d %H:%M:%S.%f")
+	if result[0].find('.') != -1:
+		utc_date = datetime.strptime(result[0], "%Y-%m-%d %H:%M:%S.%f")
+	else:
+		utc_date = datetime.strptime(result[0], "%Y-%m-%d %H:%M:%S")
+	utc_date = utc_date + offset
 	return utc_date.timestamp()
 
 def load_csv(path):

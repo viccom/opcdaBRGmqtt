@@ -504,7 +504,13 @@ function connectionToggle() {
 
 function connect() {
   var hostname = mqtt_host;
-  var port = mqtt_port;
+  var port = parseInt($("input[name=\"mqtt-connect-port\"]").val());
+  console.log("port::", port);
+  if(!isInteger(port)){
+      port = mqtt_port;
+      $("input[name=\"mqtt-connect-port\"]").val(3884);
+  }
+
   $("#newClientID").val(clientId);
   var path = "/mqtt";
   var user = 'admin';
