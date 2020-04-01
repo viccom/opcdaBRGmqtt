@@ -47,7 +47,8 @@ class OPCDATunnel(threading.Thread):
 		self._opcConfig = opcConfig
 		self.mqtt_clientid = opcConfig.get('clientid')
 		if opcConfig.get('timeInterval'):
-			self._timeInterval = int(opcConfig.get('timeInterval'))
+			if int(self._opcConfig.get('timeInterval')) > 0:
+				self._timeInterval = int(self._opcConfig.get('timeInterval'))
 		save_csv('userdata/opcconfig.csv', self._opcConfig)
 		self._opctunnel_isrunning = True
 		self._count = 0
@@ -159,7 +160,8 @@ class OPCDATunnel(threading.Thread):
 				self._mqttpub.opcdabrg_comm_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', self._opcConfig.get('opcname') + str(ex)]))
 			finally:
 				if self._opcConfig.get('timeInterval'):
-					self._timeInterval = int(self._opcConfig.get('timeInterval'))
+					if int(self._opcConfig.get('timeInterval')) > 0:
+						self._timeInterval = int(self._opcConfig.get('timeInterval'))
 				pass
 				# print(self._opcConfig.get('opcname'), self._opcConfig.get('opcitems'))
 		while not self._thread_stop:
@@ -247,7 +249,8 @@ class OPCDATunnel(threading.Thread):
 					self._count = self._count + 1
 				finally:
 					if self._opcConfig.get('timeInterval'):
-						self._timeInterval = int(self._opcConfig.get('timeInterval'))
+						if int(self._opcConfig.get('timeInterval')) > 0:
+							self._timeInterval = int(self._opcConfig.get('timeInterval'))
 		logging.warning("Close opcdatunnel!")
 
 	def stop(self):

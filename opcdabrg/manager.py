@@ -109,9 +109,9 @@ class OPCDABRGManager(threading.Thread):
 
     def on_setsysconfig(self, value):
         config = ConfigParser()
-        if os.access(os.getcwd() + '\\config.ini', os.F_OK):
+        if str(value).isdigit() and os.access(os.getcwd() + '\\config.ini', os.F_OK):
             config.read('config.ini')
-            config.set("system", 'timezone_offset', value)
+            config.set("system", 'timezone_offset', str(value))
             config.write(open('config.ini', 'w'))
             return str(config.getint('system', 'timezone_offset'))
         else:
