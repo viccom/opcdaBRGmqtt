@@ -413,6 +413,7 @@ function onMessageArrived(message) {
                 $("#ClientID").val(apiResult_message['data']['clientid']);
                 $("#OPCServer").val(apiResult_message['data']['opcname']);
                 $("#OPCHost").val(apiResult_message['data']['opchost']);
+                $("#timeinterval").val(apiResult_message['data']['timeInterval']);
                 if(isEmpty($("#OPCServerHost").val())){
                     $("#OPCServerHost").val(apiResult_message['data']['opchost']);
                 }

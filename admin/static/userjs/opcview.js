@@ -150,6 +150,7 @@ $('button.postconfig').click(function(){
     opc_config.clientid = $("#newClientID").val();
     opc_config.opcname = $("select.opcserverslist option:selected").val();
     opc_config.opchost = $("#OPCServerHost").val();
+    opc_config.timeInterval = $("#newtimeinterval").val();
     var opcitems = $("#NewOPCItems").val().trim();
     if(opcitems.length>0){
         opcitems = opcitems.split(/[\n]/)
@@ -162,7 +163,7 @@ $('button.postconfig').click(function(){
         opctags.push([v.replace(/\./, "_") ,'float' ,v]);
     });
     opc_config.opctags = opctags;
-
+    // console.log(opc_config);
     if(opc_config.opcname!=="点击上方查询按钮" && opcitems.length>0){
         // console.log(opc_config);
         if(mqttc_connected) {
@@ -186,6 +187,7 @@ $('button.postconfigForced').click(function(){
     opc_config.clientid = $("#newClientID").val();
     opc_config.opcname = $("select.opcserverslist option:selected").val();
     opc_config.opchost = $("#OPCServerHost").val();
+    opc_config.timeInterval = $("#newtimeinterval").val();
     var opcitems = $("#NewOPCItems").val().trim();
     if(opcitems.length>0){
         opcitems = opcitems.split(/[\n]/)
@@ -198,9 +200,9 @@ $('button.postconfigForced').click(function(){
         opctags.push([v.replace(/\./, "_") ,'float' ,v]);
     });
     opc_config.opctags = opctags;
-
+    // console.log(opc_config);
     if(opc_config.opcname!=="点击上方查询按钮" && opcitems.length>0){
-        console.log(opc_config);
+
         if(mqttc_connected) {
             var message = new Paho.Message(JSON.stringify({
                 "id": 'setConfigForced/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString(),

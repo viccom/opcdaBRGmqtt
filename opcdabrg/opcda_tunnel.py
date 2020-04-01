@@ -46,6 +46,8 @@ class OPCDATunnel(threading.Thread):
 			logging.warning("3. _opcdaclient has closed!")
 		self._opcConfig = opcConfig
 		self.mqtt_clientid = opcConfig.get('clientid')
+		if opcConfig.get('timeInterval'):
+			self._timeInterval = int(opcConfig.get('timeInterval'))
 		save_csv('userdata/opcconfig.csv', self._opcConfig)
 		self._opctunnel_isrunning = True
 		self._count = 0
@@ -113,6 +115,8 @@ class OPCDATunnel(threading.Thread):
 			logging.info("opcdaclient closing!")
 			self._opcdaclient.close()
 		logging.info("opctunnel has cleaned!")
+		if os.path.exists("userdata/opcconfig.csv"):
+			os.remove("userdata/opcconfig.csv")
 		# print("clean end::", self._opctunnel_isrunning, self._opcConfig, self._isReading)
 		return True
 
@@ -126,9 +130,9 @@ class OPCDATunnel(threading.Thread):
 		config = ConfigParser()
 		if os.access(os.getcwd() + '\\config.ini', os.F_OK):
 			config.read('config.ini')
-			if config.get('system', 'timezone'):
-				timezone = config.getint('system', 'timezone')
-		return timezone_map.get(str(timezone))
+			if config.get('system', 'timezone_offset'):
+				timezone_offset = config.getint('system', 'timezone_offset')
+		return timezone_map.get(str(timezone_offset))
 
 	def run(self):
 		self._opcdaclient = OpenOPC.client()
@@ -155,7 +159,7 @@ class OPCDATunnel(threading.Thread):
 				self._mqttpub.opcdabrg_comm_pub(self.mqtt_clientid, json.dumps([int(time.time()), 'link', self._opcConfig.get('opcname') + str(ex)]))
 			finally:
 				if self._opcConfig.get('timeInterval'):
-					self._timeInterval = self._opcConfig.get('timeInterval')
+					self._timeInterval = int(self._opcConfig.get('timeInterval'))
 				pass
 				# print(self._opcConfig.get('opcname'), self._opcConfig.get('opcitems'))
 		while not self._thread_stop:
@@ -243,7 +247,7 @@ class OPCDATunnel(threading.Thread):
 					self._count = self._count + 1
 				finally:
 					if self._opcConfig.get('timeInterval'):
-						self._timeInterval = self._opcConfig.get('timeInterval')
+						self._timeInterval = int(self._opcConfig.get('timeInterval'))
 		logging.warning("Close opcdatunnel!")
 
 	def stop(self):

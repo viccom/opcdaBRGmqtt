@@ -42,9 +42,12 @@ def load_csv(path):
 				logging.warning("CSV file's line 1 format is not correct!")
 				return None
 			elif i == 1:
-				opcconfig['opcname'] = item[0]
-				opcconfig['opchost'] = item[1]
-				opcconfig['clientid'] = item[2]
+				if len(item) > 2:
+					opcconfig['opcname'] = item[0]
+					opcconfig['opchost'] = item[1]
+					opcconfig['clientid'] = item[2]
+				if len(item) == 4:
+					opcconfig['timeInterval'] = item[3] or 1
 			elif i > 2:
 				tags.append(item)
 				items.append(item[2].strip())
@@ -55,13 +58,13 @@ def load_csv(path):
 
 
 def save_csv(path, configdatas):
-	headers = ['OPCNAME', 'OPCHOST', 'CLIENTID']
+	headers = ['OPCNAME', 'OPCHOST', 'CLIENTID', 'TIMEINTERVAL']
 	csv_datas = []
 	csv_datas.append(headers)
-	csv_datas.append([configdatas['opcname'], configdatas['opchost'], configdatas['clientid']])
+	csv_datas.append([configdatas.get('opcname'), configdatas.get('opchost'), configdatas.get('clientid'), configdatas.get('timeInterval') or 1])
 	tagheaders = ['tagname', 'datatype', 'opcitem']
 	csv_datas.append(tagheaders)
-	for v in configdatas['opctags']:
+	for v in configdatas.get('opctags'):
 		csv_datas.append(v)
 	with open(path, 'w', newline='') as f:
 		writer = csv.writer(f)
