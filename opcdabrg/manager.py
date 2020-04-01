@@ -107,11 +107,11 @@ class OPCDABRGManager(threading.Thread):
                 timezone_value = str(config.getint('system', 'timezone_offset'))
         return timezone_value
 
-    def on_setsysconfig(self, value):
+    def on_setsysconfig(self, paramValue):
         config = ConfigParser()
-        if str(value).isdigit() and os.access(os.getcwd() + '\\config.ini', os.F_OK):
+        if str(paramValue).isdigit() and os.access(os.getcwd() + '\\config.ini', os.F_OK):
             config.read('config.ini')
-            config.set("system", 'timezone_offset', str(value))
+            config.set("system", 'timezone_offset', value=str(paramValue))
             config.write(open('config.ini', 'w'))
             return str(config.getint('system', 'timezone_offset'))
         else:
