@@ -311,9 +311,11 @@ function onMessageArrived(message) {
         var status_message = JSON.parse(message.payloadString);
         $(".OPCServerStatus").text(status_message[2]);
         if(status_message[2]=="online"){
-            $(".OPCServerStatus").addClass('label-success')
+            $(".OPCServerStatus").addClass('label-success');
+            $("button.postValue").attr("disabled",false);
         }else{
-            $(".OPCServerStatus").removeClass('label-success')
+            $(".OPCServerStatus").removeClass('label-success');
+            $("button.postValue").attr("disabled",true);
         }
     }
 
