@@ -189,8 +189,8 @@ class OPCDABRG_Service(BaseService):
     @whitelist.__func__
     def api_setsysconfig(self, id, params):
         # print("params:", params)
-        timezone_value = params.get('timezone_value')
-        ret = self._manager.on_setsysconfig(timezone_value)
+        timezone_offset = params.get('timezone_offset')
+        ret = self._manager.on_setsysconfig(timezone_offset)
         if ret:
             return self.success("api", id, ret)
         else:

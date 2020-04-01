@@ -80,17 +80,17 @@ $('button.timezone-cancel').click(function(){
 });
 
 $('button.timezone-save').click(function(){
-    var timezone_value = $("input.timezone").val();
-    if(isEmpty(timezone_value)){
+    var timezone_offset = $("input.timezone").val();
+    if(isEmpty(timezone_offset)){
         $("span.api-feed").text("值不能为空");
         return false;
     }
-    if(!isInteger(timezone_value)){
+    if(!isInteger(timezone_offset)){
         $("span.api-feed").text("数值必须为整数且界于[-12,+14]。");
         return false;
     }
     if(mqttc_connected) {
-        var message = new Paho.Message(JSON.stringify({"id": 'setsysconfig/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString(), "timezone_value": timezone_value}));
+        var message = new Paho.Message(JSON.stringify({"id": 'setsysconfig/' + $("#newClientID").val() + '/' + Date.parse(new Date()).toString(), "timezone_offset": timezone_offset}));
         message.destinationName = 'v1/opcdabrg/api/setsysconfig';
         message.qos = 0;
         mqtt_client.send(message);
