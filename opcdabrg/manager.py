@@ -103,7 +103,7 @@ class OPCDABRGManager(threading.Thread):
         config = ConfigParser()
         if os.access(os.getcwd() + '\\config.ini', os.F_OK):
             config.read('config.ini')
-            if config.get('system', 'timezone_offset'):
+            if config.getint('system', 'timezone_offset'):
                 timezone_value = str(config.getint('system', 'timezone_offset'))
         return timezone_value
 
